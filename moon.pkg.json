@@ -1,0 +1,5 @@
+{
+  "import": [
+    "tiye/cirru-parser/lib"
+  ]
+}

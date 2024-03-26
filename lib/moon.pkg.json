@@ -1,1 +1,5 @@
-{}
+{
+  "import": [
+    { "path": "peter-jerry-ye/parser-combinator", "alias": "peter_seq" }
+  ]
+}

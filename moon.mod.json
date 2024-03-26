@@ -1,6 +1,9 @@
 {
   "name": "tiye/cirru-parser",
   "version": "0.0.1",
+  "deps": {
+    "peter-jerry-ye/parser-combinator": "0.6.0"
+  },
   "readme": "README.md",
   "repository": "",
   "license": "Apache-2.0",

@@ -1,5 +1,5 @@
 pub fn demo_parser() -> Unit {
-  match  @cirru.parse("DEMO") {
+  match @cirru.parse("DEMO") {
     Ok(tree) => {
       debug(tree)
     }

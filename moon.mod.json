@@ -1,6 +1,7 @@
 {
   "name": "tiye/cirru-parser",
   "version": "0.0.1",
+  "deps": {},
   "readme": "README.md",
   "repository": "",
   "license": "Apache-2.0",

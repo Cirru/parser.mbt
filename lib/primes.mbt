@@ -1,4 +1,3 @@
-
 /// Cirru uses nested Vecters and Strings as data structure
 enum Cirru {
   /// Leaf node, with a string
@@ -11,7 +10,7 @@ fn Cirru::default() -> Cirru {
   Cirru::List(@vec.Vec::new())
 }
 
-fn to_string(self: Cirru) -> String {
+fn to_string(self : Cirru) -> String {
   match self {
     Cirru::Leaf(s) => s
     Cirru::List(xs) => {
@@ -28,11 +27,9 @@ fn to_string(self: Cirru) -> String {
   }
 }
 
-pub fn debug_write(self: Cirru, buffer: Buffer) -> Unit {
+pub fn debug_write(self : Cirru, buffer : Buffer) -> Unit {
   match self {
-    Cirru::Leaf(s) => {
-      buffer.write_string(s)
-    }
+    Cirru::Leaf(s) => buffer.write_string(s)
     Cirru::List(xs) => {
       buffer.write_char('(')
       for i = 0; i < xs.length(); i = i + 1 {
@@ -47,47 +44,49 @@ pub fn debug_write(self: Cirru, buffer: Buffer) -> Unit {
   }
 }
 
-fn op_equal(self: Cirru, other: Cirru) -> Bool {
+fn op_equal(self : Cirru, other : Cirru) -> Bool {
   match self {
-    Cirru::Leaf(a) => match other {
-      Cirru::Leaf(b) => a == b
-      _ => false
-    }
-    Cirru::List(xs) => match other {
-      Cirru::List(ys) => {
-        if xs.length() != ys.length() {
-          return false
-        }
-        let size = xs.length()
-        let mut i = 0
-        while i <= size {
-          if xs[i] != ys[i] {
+    Cirru::Leaf(a) =>
+      match other {
+        Cirru::Leaf(b) => a == b
+        _ => false
+      }
+    Cirru::List(xs) =>
+      match other {
+        Cirru::List(ys) => {
+          if xs.length() != ys.length() {
             return false
           }
-          i = i + 1
+          let size = xs.length()
+          let mut i = 0
+          while i <= size {
+            if xs[i] != ys[i] {
+              return false
+            }
+            i = i + 1
+          }
+          return true
         }
-        return true
+        _ => false
       }
-      _ => false
-    }
   }
 }
 
-pub fn length(self: Cirru) -> Int {
+pub fn length(self : Cirru) -> Int {
   match self {
     Leaf(s) => s.length()
     List(xs) => xs.length()
   }
 }
 
-pub fn is_empty(self: Cirru) -> Bool {
+pub fn is_empty(self : Cirru) -> Bool {
   match self {
     Leaf(s) => s.length() == 0
     List(xs) => xs.length() == 0
   }
 }
 
-pub fn is_nested(self: Cirru)-> Bool{
+pub fn is_nested(self : Cirru) -> Bool {
   match self {
     Leaf(_) => false
     List(xs) => {
@@ -102,7 +101,7 @@ pub fn is_nested(self: Cirru)-> Bool{
   }
 }
 
-pub fn is_comment(self: Cirru) -> Bool {
+pub fn is_comment(self : Cirru) -> Bool {
   match self {
     Leaf(s) => s[0] == ';'
     _ => false
@@ -124,7 +123,7 @@ enum CirruLexItem {
   Str(String)
 }
 
-fn CirruLexItem::is_normal_str(tok: String) -> Bool {
+fn CirruLexItem::is_normal_str(tok : String) -> Bool {
   let size = tok.length()
   if size == 0 {
     return false
@@ -132,7 +131,10 @@ fn CirruLexItem::is_normal_str(tok: String) -> Bool {
   let mut i = 0
   while i < size {
     let c = tok[i]
-    if (c >= 'A' && c <= 'Z') || (c>='a' && c <= 'z') || c == '-' || c == '?' || c == '!' || c == '+' || c == '*' || c == '$' || c == '@' || c == '#' || c == '%' || c == '&' || c == '_' || c == '=' || c == '|' || c == ':' || c == '.' || c == '<' || c == '>' {
+    if c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == '-' || c == '?' || c ==
+    '!' || c == '+' || c == '*' || c == '$' || c == '@' || c == '#' || c == '%' ||
+    c == '&' || c == '_' || c == '=' || c == '|' || c == ':' || c == '.' || c ==
+    '<' || c == '>' {
       i = i + 1
     } else {
       return false
@@ -140,11 +142,9 @@ fn CirruLexItem::is_normal_str(tok: String) -> Bool {
     i = i + 1
   }
   return true
-
 }
 
-fn escape_cirru_leaf(s: String) -> String {
-
+fn escape_cirru_leaf(s : String) -> String {
   if is_normal_str(s) {
     return "\"\(s)\""
   } else {

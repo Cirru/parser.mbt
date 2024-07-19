@@ -1,5 +1,5 @@
 test "parser" {
-  if parse("demo文字demo") != Ok(Cirru::Leaf("TODO...")) {
+  if @lib.parse("demo文字demo") != Ok(@lib.Cirru::Leaf("TODO...")) {
     abort("parsed wrong!")
   }
 }

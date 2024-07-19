@@ -1,13 +1,13 @@
 /// Cirru uses nested Vecters and Strings as data structure
-enum Cirru {
+pub enum Cirru {
   /// Leaf node, with a string
   Leaf(String)
   /// List node, with a list of children
-  List(@vec.Vec[Cirru])
-}
+  List(Array[Cirru])
+} derive(Eq)
 
 fn Cirru::default() -> Cirru {
-  Cirru::List(@vec.Vec::new())
+  Cirru::List(Array::new())
 }
 
 fn to_string(self : Cirru) -> String {
@@ -44,33 +44,6 @@ pub fn debug_write(self : Cirru, buffer : Buffer) -> Unit {
   }
 }
 
-fn op_equal(self : Cirru, other : Cirru) -> Bool {
-  match self {
-    Cirru::Leaf(a) =>
-      match other {
-        Cirru::Leaf(b) => a == b
-        _ => false
-      }
-    Cirru::List(xs) =>
-      match other {
-        Cirru::List(ys) => {
-          if xs.length() != ys.length() {
-            return false
-          }
-          let size = xs.length()
-          let mut i = 0
-          while i <= size {
-            if xs[i] != ys[i] {
-              return false
-            }
-            i = i + 1
-          }
-          return true
-        }
-        _ => false
-      }
-  }
-}
 
 pub fn length(self : Cirru) -> Int {
   match self {

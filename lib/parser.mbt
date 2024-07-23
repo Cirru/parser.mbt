@@ -1,6 +1,6 @@
 fn build_exprs(
-  tokens : @vec.Vec[CirruLexItem]
-) -> Result[@vec.Vec[Cirru], String] {
+  tokens : Array[CirruLexItem]
+) -> Result[Array[Cirru], String] {
   let a = [1, 2, 3]
   Result::Err("TODO")
 }
@@ -27,8 +27,8 @@ fn parse_indentation(size : Int) -> Result[CirruLexItem, String] {
   }
 }
 
-fn lex(initial_code : String) -> Result[@vec.Vec[CirruLexItem], String] {
-  let acc : @vec.Vec[CirruLexItem] = @vec.Vec::new()
+fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
+  let acc  = []
   let mut state = CirruLexState::Indent
   let mut buffer = ""
   let code = initial_code.to_array()

@@ -10,16 +10,20 @@ fn Cirru::default() -> Cirru {
   Cirru::List(Array::new())
 }
 
-fn to_string(self : Cirru) -> String {
+pub fn output(self : Cirru, logger : Logger) -> Unit {
+  logger.write_string(self.to_string())
+}
+
+pub fn to_string(self : Cirru) -> String {
   match self {
     Cirru::Leaf(s) => s
     Cirru::List(xs) => {
       let mut out = ""
       for i = 0; i < xs.length(); i = i + 1 {
         let x = xs[i]
-        out = "\(out)\(x)"
+        out = "\{out}\{x}"
         if i < xs.length() - 1 {
-          out = "\(out) "
+          out = "\{out} "
         }
       }
       return out
@@ -43,7 +47,6 @@ pub fn debug_write(self : Cirru, buffer : Buffer) -> Unit {
     }
   }
 }
-
 
 pub fn length(self : Cirru) -> Int {
   match self {
@@ -87,7 +90,7 @@ enum CirruLexState {
   Escape
   Indent
   Str
-} derive(Debug)
+} derive(Show)
 
 enum CirruLexItem {
   Open
@@ -104,10 +107,25 @@ fn CirruLexItem::is_normal_str(tok : String) -> Bool {
   let mut i = 0
   while i < size {
     let c = tok[i]
-    if c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == '-' || c == '?' || c ==
-    '!' || c == '+' || c == '*' || c == '$' || c == '@' || c == '#' || c == '%' ||
-    c == '&' || c == '_' || c == '=' || c == '|' || c == ':' || c == '.' || c ==
-    '<' || c == '>' {
+    if (c >= 'A' && c <= 'Z') ||
+      (c >= 'a' && c <= 'z') ||
+      c == '-' ||
+      c == '?' ||
+      c == '!' ||
+      c == '+' ||
+      c == '*' ||
+      c == '$' ||
+      c == '@' ||
+      c == '#' ||
+      c == '%' ||
+      c == '&' ||
+      c == '_' ||
+      c == '=' ||
+      c == '|' ||
+      c == ':' ||
+      c == '.' ||
+      c == '<' ||
+      c == '>' {
       i = i + 1
     } else {
       return false
@@ -119,7 +137,7 @@ fn CirruLexItem::is_normal_str(tok : String) -> Bool {
 
 fn escape_cirru_leaf(s : String) -> String {
   if is_normal_str(s) {
-    return "\"\(s)\""
+    return "\"\{s}\""
   } else {
     let mut out = "\""
     let size = s.length()
@@ -137,7 +155,7 @@ fn escape_cirru_leaf(s : String) -> String {
       } else if c == '\'' {
         out = out + "\\'"
       } else {
-        out = "\(out)\(c)"
+        out = "\{out}\{c}"
       }
       i = i + 1
     }

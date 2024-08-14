@@ -1,34 +1,34 @@
-fn build_exprs(
-  tokens : Array[CirruLexItem]
-) -> Result[Array[Cirru], String] {
+fn build_exprs(tokens : Array[CirruLexItem]) -> Result[Array[Cirru], String] {
   let a = [1, 2, 3]
   Result::Err("TODO")
 }
 
-pub fn parse(content : String) -> Result[Cirru, String] {
+pub fn parse(content : String) -> Cirru!CirruParseError {
   // @seq::Seq::from_string(content)
   let ss = content.to_array()
   let mut i = 0
   while i < ss.length() {
     let c = ss[i]
-    debug(c)
+    println(c)
     i += 1
   }
-  debug(ss)
+  println(ss)
   // let bs = content.to_bytes()
-  Ok(Cirru::Leaf("TODO"))
+  Cirru::Leaf("TODO")
 }
 
-fn parse_indentation(size : Int) -> Result[CirruLexItem, String] {
+type! CirruParseError String
+
+fn parse_indentation(size : Int) -> CirruLexItem!CirruParseError {
   if size % 2 == 0 {
-    Result::Ok(CirruLexItem::Indent(size % 2))
+    CirruLexItem::Indent(size % 2)
   } else {
-    Result::Err("odd indentation size: \(size)")
+    raise CirruParseError("odd indentation size: \{size}")
   }
 }
 
-fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
-  let acc  = []
+fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
+  let acc = []
   let mut state = CirruLexState::Indent
   let mut buffer = ""
   let code = initial_code.to_array()
@@ -137,7 +137,7 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             idx += 1
             continue
           }
-          '\n' => return Result::Err("unexpected newline in string")
+          '\n' => raise CirruParseError("unexpected newline in string")
           _ => {
             buffer += c.to_string()
             idx += 1
@@ -191,8 +191,8 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             continue
           }
           _ =>
-            return Result::Err(
-              "unexpected character during string escaping: \(c)",
+            raise CirruParseError(
+              "unexpected character during string escaping: \{c}",
             )
         }
       Indent =>
@@ -210,7 +210,7 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             continue
           }
           '"' => {
-            let level = parse_indentation(buffer.length())?
+            let level = parse_indentation!(buffer.length())
             acc.push(level)
             state = CirruLexState::Str
             buffer = ""
@@ -218,7 +218,7 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             continue
           }
           '(' => {
-            let level = parse_indentation(buffer.length())?
+            let level = parse_indentation!(buffer.length())
             acc.push(level)
             acc.push(CirruLexItem::Open)
             state = CirruLexState::Space
@@ -226,9 +226,9 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             idx += 1
             continue
           }
-          ')' => return Result::Err("unexpected ) at line start")
+          ')' => raise CirruParseError("unexpected ) at line start")
           _ => {
-            let level = parse_indentation(buffer.length())?
+            let level = parse_indentation!(buffer.length())
             acc.push(level)
             state = CirruLexState::Token
             buffer = c.to_string()
@@ -238,5 +238,5 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
         }
     }
   }
-  Ok(acc)
+  acc
 }

@@ -99,6 +99,19 @@ enum CirruLexItem {
   Str(String)
 }
 
+fn output(self : CirruLexItem, logger : Logger) -> Unit {
+  logger.write_string(self.to_string())
+}
+
+fn to_string(self : CirruLexItem) -> String {
+  match self {
+    CirruLexItem::Open => "("
+    CirruLexItem::Close => ")"
+    CirruLexItem::Indent(size) => "indent(\{size})"
+    CirruLexItem::Str(s) => s
+  }
+}
+
 fn CirruLexItem::is_normal_str(tok : String) -> Bool {
   let size = tok.length()
   if size == 0 {

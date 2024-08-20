@@ -1,34 +1,84 @@
-fn build_exprs(
-  tokens : Array[CirruLexItem]
-) -> Result[Array[Cirru], String] {
-  let a = [1, 2, 3]
-  Result::Err("TODO")
+fn build_exprs(tokens : Array[CirruLexItem]) -> Array[Cirru]!CirruParseError {
+  let acc : Array[Cirru] = Array::new()
+  let mut idx = 0
+  let pull_token = fn() -> CirruLexItem? {
+    if idx >= tokens.length() {
+      return None
+    }
+    let pos = idx
+    idx += 1
+    Some(tokens[pos])
+  }
+  for {
+    let chunk = pull_token()
+    match chunk {
+      None => return acc
+      Some(ck) =>
+        match ck {
+          CirruLexItem::Open => {
+            let mut pointer : Array[Cirru] = Array::new()
+            // guess a nested level of 16
+            let pointer_stack : Array[Array[Cirru]] = Array::new()
+            for {
+              let cursor = pull_token()
+              match cursor {
+                None => raise CirruParseError("unexpected end of file")
+                Some(c) =>
+                  match c {
+                    CirruLexItem::Close =>
+                      match pointer_stack.pop() {
+                        None => acc.push(Cirru::List(pointer))
+                        // break;
+                        Some(v) => {
+                          let prev_p = pointer
+                          pointer = v
+                          pointer.push(Cirru::List(prev_p))
+                        }
+                      }
+                    CirruLexItem::Open => {
+                      pointer_stack.push(pointer)
+                      pointer = Array::new()
+                    }
+                    CirruLexItem::Str(s) => pointer.push(Cirru::Leaf(s))
+                    CirruLexItem::Indent(n) =>
+                      raise CirruParseError("unknown indent: \{n}")
+                  }
+              }
+            }
+          }
+          CirruLexItem::Close => raise CirruParseError("unexpected \")\"")
+          a => raise CirruParseError("unknown item: \{a}")
+        }
+    }
+  }
 }
 
-pub fn parse(content : String) -> Result[Cirru, String] {
+pub fn parse(content : String) -> Cirru!CirruParseError {
   // @seq::Seq::from_string(content)
   let ss = content.to_array()
   let mut i = 0
   while i < ss.length() {
     let c = ss[i]
-    debug(c)
+    println(c)
     i += 1
   }
-  debug(ss)
+  println(ss)
   // let bs = content.to_bytes()
-  Ok(Cirru::Leaf("TODO"))
+  Cirru::Leaf("TODO")
 }
 
-fn parse_indentation(size : Int) -> Result[CirruLexItem, String] {
+type! CirruParseError String
+
+fn parse_indentation(size : Int) -> CirruLexItem!CirruParseError {
   if size % 2 == 0 {
-    Result::Ok(CirruLexItem::Indent(size % 2))
+    CirruLexItem::Indent(size % 2)
   } else {
-    Result::Err("odd indentation size: \(size)")
+    raise CirruParseError("odd indentation size: \{size}")
   }
 }
 
-fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
-  let acc  = []
+fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
+  let acc = []
   let mut state = CirruLexState::Indent
   let mut buffer = ""
   let code = initial_code.to_array()
@@ -137,7 +187,7 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             idx += 1
             continue
           }
-          '\n' => return Result::Err("unexpected newline in string")
+          '\n' => raise CirruParseError("unexpected newline in string")
           _ => {
             buffer += c.to_string()
             idx += 1
@@ -191,8 +241,8 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             continue
           }
           _ =>
-            return Result::Err(
-              "unexpected character during string escaping: \(c)",
+            raise CirruParseError(
+              "unexpected character during string escaping: \{c}",
             )
         }
       Indent =>
@@ -210,7 +260,7 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             continue
           }
           '"' => {
-            let level = parse_indentation(buffer.length())?
+            let level = parse_indentation!(buffer.length())
             acc.push(level)
             state = CirruLexState::Str
             buffer = ""
@@ -218,7 +268,7 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             continue
           }
           '(' => {
-            let level = parse_indentation(buffer.length())?
+            let level = parse_indentation!(buffer.length())
             acc.push(level)
             acc.push(CirruLexItem::Open)
             state = CirruLexState::Space
@@ -226,9 +276,9 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
             idx += 1
             continue
           }
-          ')' => return Result::Err("unexpected ) at line start")
+          ')' => raise CirruParseError("unexpected ) at line start")
           _ => {
-            let level = parse_indentation(buffer.length())?
+            let level = parse_indentation!(buffer.length())
             acc.push(level)
             state = CirruLexState::Token
             buffer = c.to_string()
@@ -238,5 +288,68 @@ fn lex(initial_code : String) -> Result[Array[CirruLexItem], String] {
         }
     }
   }
-  Ok(acc)
+  acc
+}
+
+/// internal function for figuring out indentations after lexing
+fn resolve_indentations(tokens : Array[CirruLexItem]) -> Array[CirruLexItem] {
+  let size = tokens.length()
+  let mut acc : Array[CirruLexItem] = Array::new()
+  let mut level = 0
+  let mut pointer = 0
+  for {
+    if pointer >= size {
+      if acc.is_empty() {
+        return Array::new()
+      }
+      acc.insert(0, CirruLexItem::Open)
+      for i = 0; i < level; i = i + 1 {
+        acc.push(CirruLexItem::Close)
+      }
+      acc.push(CirruLexItem::Close)
+      return acc
+    }
+    match tokens[pointer] {
+      CirruLexItem::Str(s) => {
+        acc.push(CirruLexItem::Str(s))
+        pointer += 1
+      }
+      CirruLexItem::Open => {
+        acc.push(CirruLexItem::Open)
+        pointer += 1
+      }
+      CirruLexItem::Close => {
+        acc.push(CirruLexItem::Close)
+        pointer += 1
+      }
+      CirruLexItem::Indent(n) =>
+        if n > level {
+          let delta = n - level
+          // for _ in 0..delta {
+          for i = 0; i < delta; i = i + 1 {
+            acc.push(CirruLexItem::Open)
+          }
+          pointer += 1
+          level = n
+        } else if n < level {
+          let delta = level - n
+          // for _ in 0..delta {
+          for i = 0; i < delta; i = i + 1 {
+            acc.push(CirruLexItem::Close)
+          }
+          acc.push(CirruLexItem::Close)
+          acc.push(CirruLexItem::Open)
+          pointer += 1
+          level = n
+        } else {
+          if acc.is_empty() {
+            acc = Array::new()
+          } else {
+            acc.push(CirruLexItem::Close)
+            acc.push(CirruLexItem::Open)
+          }
+          pointer += 1
+        }
+    }
+  }
 }

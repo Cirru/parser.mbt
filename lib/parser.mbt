@@ -2,6 +2,7 @@ fn build_exprs(tokens : Array[CirruLexItem]) -> Array[Cirru]!CirruParseError {
   let acc : Array[Cirru] = Array::new()
   let mut idx = 0
   let pull_token = fn() -> CirruLexItem? {
+    // println("pulling token at \{idx}")
     if idx >= tokens.length() {
       return None
     }
@@ -27,8 +28,10 @@ fn build_exprs(tokens : Array[CirruLexItem]) -> Array[Cirru]!CirruParseError {
                   match c {
                     CirruLexItem::Close =>
                       match pointer_stack.pop() {
-                        None => acc.push(Cirru::List(pointer))
-                        // break;
+                        None => {
+                          acc.push(Cirru::List(pointer))
+                          break
+                        }
                         Some(v) => {
                           let prev_p = pointer
                           pointer = v
@@ -55,11 +58,19 @@ fn build_exprs(tokens : Array[CirruLexItem]) -> Array[Cirru]!CirruParseError {
 
 pub fn parse(code : String) -> Array[Cirru]!CirruParseError {
   let tokens = resolve_indentations(lex!(code))
+  println("tokens: \{tokens}")
   let tree = build_exprs!(tokens)
+  println("tree: \{tree}")
   resolve_comma(resolve_dollar(tree))
 }
 
 type! CirruParseError String
+
+pub fn to_string(self : CirruParseError) -> String {
+  match self {
+    CirruParseError(s) => s
+  }
+}
 
 fn parse_indentation(size : Int) -> CirruLexItem!CirruParseError {
   if size % 2 == 0 {
@@ -77,6 +88,7 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
   let mut idx = 0
   while idx < code.length() {
     let c = code[idx]
+    // println("lexing \{c} in \{state} and \{buffer}")
     match state {
       CirruLexState::Space =>
         match c {
@@ -280,7 +292,17 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
         }
     }
   }
-  acc
+  println("end of file in lex \{acc}")
+  match state {
+    CirruLexState::Space => acc
+    CirruLexState::Token => {
+      acc.push(CirruLexItem::Str(buffer))
+      acc
+    }
+    CirruLexState::Escape => raise CirruParseError("unknown escape")
+    CirruLexState::Indent => acc
+    CirruLexState::Str => raise CirruParseError("finished at string")
+  }
 }
 
 /// internal function for figuring out indentations after lexing

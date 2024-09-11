@@ -53,18 +53,10 @@ fn build_exprs(tokens : Array[CirruLexItem]) -> Array[Cirru]!CirruParseError {
   }
 }
 
-pub fn parse(content : String) -> Cirru!CirruParseError {
-  // @seq::Seq::from_string(content)
-  let ss = content.to_array()
-  let mut i = 0
-  while i < ss.length() {
-    let c = ss[i]
-    println(c)
-    i += 1
-  }
-  println(ss)
-  // let bs = content.to_bytes()
-  Cirru::Leaf("TODO")
+pub fn parse(code : String) -> Array[Cirru]!CirruParseError {
+  let tokens = resolve_indentations(lex!(code))
+  let tree = build_exprs!(tokens)
+  resolve_comma(resolve_dollar(tree))
 }
 
 type! CirruParseError String

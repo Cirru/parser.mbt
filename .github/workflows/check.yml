@@ -7,16 +7,13 @@ on:
   pull_request:
 
 jobs:
-
   build:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: install
-        run: |
-          /bin/bash -c "$(curl -fsSL https://cli.moonbitlang.com/ubuntu_x86_64_moon_setup.sh)"
-          echo "/home/runner/.moon/bin" >> $GITHUB_PATH
+      - name: Setup Moonbit
+        uses: hustcer/setup-moonbit@v1.5
 
       - name: moon check
         run: moon check

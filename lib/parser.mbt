@@ -85,9 +85,7 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
   let mut state = CirruLexState::Indent
   let mut buffer = ""
   let code = initial_code.to_array()
-  let mut idx = 0
-  while idx < code.length() {
-    let c = code[idx]
+  for idx, c in code {
     // println("lexing \{c} in \{state} and \{buffer}")
     match state {
       CirruLexState::Space =>
@@ -95,40 +93,28 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
           ' ' => {
             state = CirruLexState::Space
             buffer = ""
-            idx += 1
-            continue
           }
           '\n' => {
             state = CirruLexState::Indent
             buffer = ""
-            idx += 1
-            continue
           }
           '(' => {
             acc.push(CirruLexItem::Open)
             state = CirruLexState::Space
             buffer = ""
-            idx += 1
-            continue
           }
           ')' => {
             acc.push(CirruLexItem::Close)
             state = CirruLexState::Space
             buffer = ""
-            idx += 1
-            continue
           }
           '"' => {
             state = CirruLexState::Str
             buffer = ""
-            idx += 1
-            continue
           }
           _ => {
             state = CirruLexState::Token
             buffer = c.to_string()
-            idx += 1
-            continue
           }
         }
       CirruLexState::Token =>
@@ -137,43 +123,32 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
             acc.push(CirruLexItem::Str(buffer))
             state = CirruLexState::Space
             buffer = ""
-            idx += 1
-            continue
           }
           '"' => {
             acc.push(CirruLexItem::Str(buffer))
             state = CirruLexState::Str
             buffer = ""
-            idx += 1
-            continue
           }
           '\n' => {
             acc.push(CirruLexItem::Str(buffer))
             state = CirruLexState::Indent
             buffer = ""
-            idx += 1
-            continue
           }
           '(' => {
             acc.push(CirruLexItem::Str(buffer))
             acc.push(CirruLexItem::Open)
             state = CirruLexState::Space
             buffer = ""
-            idx += 1
-            continue
           }
           ')' => {
             acc.push(CirruLexItem::Str(buffer))
             acc.push(CirruLexItem::Close)
             state = CirruLexState::Space
             buffer = ""
-            idx += 1
-            continue
           }
           _ => {
+            state = CirruLexState::Token
             buffer += c.to_string()
-            idx += 1
-            continue
           }
         }
       CirruLexState::Str =>
@@ -182,20 +157,12 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
             acc.push(CirruLexItem::Str(buffer))
             state = CirruLexState::Space
             buffer = ""
-            idx += 1
-            continue
           }
-          '\\' => {
-            state = CirruLexState::Escape
-            buffer = ""
-            idx += 1
-            continue
-          }
+          '\\' => state = CirruLexState::Escape
           '\n' => raise CirruParseError("unexpected newline in string")
           _ => {
+            state = CirruLexState::Str
             buffer += c.to_string()
-            idx += 1
-            continue
           }
         }
       CirruLexState::Escape =>
@@ -203,46 +170,42 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
           '"' => {
             state = CirruLexState::Str
             buffer += "\""
-            idx += 1
-            continue
           }
           '\'' => {
             state = CirruLexState::Str
             buffer += "'"
-            idx += 1
-            continue
           }
           't' => {
             state = CirruLexState::Str
             buffer += "\t"
-            idx += 1
-            continue
           }
           'n' => {
             state = CirruLexState::Str
             buffer += "\n"
-            idx += 1
-            continue
           }
           'r' => {
             state = CirruLexState::Str
             buffer += "\r"
-            idx += 1
-            continue
           }
           'u' => {
+            // TODO handle some unicode
             let end = idx + 10
-            // TODO
+            let peek = if end >= code.length() {
+              code[idx:]
+            } else {
+              code[idx:end]
+            }
+            let mut preview = ""
+            for c in peek {
+              preview += c.to_string()
+            }
+            println("Unicode escaping is not supported yet: \{preview} ...")
             buffer += "\\u"
             state = CirruLexState::Str
-            idx += 1
-            continue
           }
           '\\' => {
             state = CirruLexState::Str
             buffer += "\\"
-            idx += 1
-            continue
           }
           _ =>
             raise CirruParseError(
@@ -254,22 +217,16 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
           ' ' => {
             state = CirruLexState::Indent
             buffer += c.to_string()
-            idx += 1
-            continue
           }
           '\n' => {
             state = CirruLexState::Indent
-            buffer += ""
-            idx += 1
-            continue
+            buffer = ""
           }
           '"' => {
             let level = parse_indentation!(buffer.length())
             acc.push(level)
             state = CirruLexState::Str
             buffer = ""
-            idx += 1
-            continue
           }
           '(' => {
             let level = parse_indentation!(buffer.length())
@@ -277,8 +234,6 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
             acc.push(CirruLexItem::Open)
             state = CirruLexState::Space
             buffer = ""
-            idx += 1
-            continue
           }
           ')' => raise CirruParseError("unexpected ) at line start")
           _ => {
@@ -286,8 +241,6 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
             acc.push(level)
             state = CirruLexState::Token
             buffer = c.to_string()
-            idx += 1
-            continue
           }
         }
     }

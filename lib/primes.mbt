@@ -29,7 +29,12 @@ pub fn output(self : Cirru, logger : Logger) -> Unit {
 
 pub fn to_string(self : Cirru) -> String {
   match self {
-    Cirru::Leaf(s) => s
+    Cirru::Leaf(s) =>
+      if CirruLexItem::is_normal_str(s) {
+        return s
+      } else {
+        return escape_cirru_leaf(s)
+      }
     Cirru::List(xs) => {
       let mut out = ""
       for i = 0; i < xs.length(); i = i + 1 {

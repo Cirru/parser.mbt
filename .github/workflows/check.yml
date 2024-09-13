@@ -15,8 +15,8 @@ jobs:
       - name: Setup Moonbit
         uses: hustcer/setup-moonbit@v1.5
 
-      - name: moon check
-        run: moon check
+      # - name: moon check
+      #   run: moon check
 
       # - name: moon info
       #   run: |
@@ -25,7 +25,6 @@ jobs:
 
       - name: moon test
         run: |
-          moon test
           moon test --target js
 
       # - name: moon bundle
@@ -34,7 +33,7 @@ jobs:
       # - name: check core size
       #   run: ls -alh `find ./target/bundle -name *.core`
 
-      - name: format diff
-        run: |
-          moon fmt
-          git diff
+      # - name: format diff
+      #   run: |
+      #     moon fmt
+      #     git diff

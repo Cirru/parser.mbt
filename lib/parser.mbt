@@ -58,9 +58,9 @@ fn build_exprs(tokens : Array[CirruLexItem]) -> Array[Cirru]!CirruParseError {
 
 pub fn parse(code : String) -> Array[Cirru]!CirruParseError {
   let tokens = resolve_indentations(lex!(code))
-  println("tokens: \{tokens}")
+  // println("tokens: \{tokens}")
   let tree = build_exprs!(tokens)
-  println("tree: \{tree}")
+  // println("tree: \{tree}")
   resolve_comma(resolve_dollar(tree))
 }
 
@@ -74,7 +74,7 @@ pub fn to_string(self : CirruParseError) -> String {
 
 fn parse_indentation(size : Int) -> CirruLexItem!CirruParseError {
   if size % 2 == 0 {
-    CirruLexItem::Indent(size % 2)
+    CirruLexItem::Indent(size >> 1)
   } else {
     raise CirruParseError("odd indentation size: \{size}")
   }
@@ -86,7 +86,10 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
   let mut buffer = ""
   let code = initial_code.to_array()
   for idx, c in code {
-    // println("lexing \{c} in \{state} and \{buffer}")
+    // println("acc: \{acc}")
+    // println(
+    //   "lexing \{c.to_string().escape()} in \{state} and \{buffer.escape()}",
+    // )
     match state {
       CirruLexState::Space =>
         match c {
@@ -245,7 +248,7 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
         }
     }
   }
-  println("end of file in lex \{acc}")
+  // println("end of file in lex \{acc}")
   match state {
     CirruLexState::Space => acc
     CirruLexState::Token => {

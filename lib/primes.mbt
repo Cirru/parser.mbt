@@ -6,6 +6,19 @@ pub enum Cirru {
   List(Array[Cirru])
 } derive(Eq)
 
+pub fn to_json(self : Cirru) -> Json {
+  match self {
+    Cirru::Leaf(s) => Json::String(s)
+    Cirru::List(xs) => {
+      let out = Array::new()
+      for x in xs {
+        out.push(x.to_json())
+      }
+      Json::Array(out)
+    }
+  }
+}
+
 fn Cirru::default() -> Cirru {
   Cirru::List(Array::new())
 }

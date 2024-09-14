@@ -42,7 +42,7 @@ fn is_simple_expr(ys : Array[Cirru]) -> Bool {
 fn is_boxed(ys : Array[Cirru]) -> Bool {
   for y in ys {
     match y {
-      Cirru::List(_) => return true
+      Cirru::List(_) => return false
       Cirru::Leaf(_) => ()
     }
   }
@@ -116,7 +116,7 @@ fn push_spaces(buf : String, n : Int) -> String {
   //   buf.push_str("  ");
   // }
   for i = 0; i < n; i = i + 1 {
-    ret = "\{ret}  "
+    ret = ret + "  "
   }
   return ret
 }

@@ -23,8 +23,8 @@ pub fn main_parser() -> Unit {
   }
 }
 
-fn main {
-  let demo = "folding"
+pub fn main_writer() -> Unit {
+  let demo = "unfolding"
   let demo_file = fsReadSync("./test/cirru/\{demo}.cirru")
   let json_file = fsReadSync("./test/data/\{demo}.json")
 
@@ -41,6 +41,10 @@ fn main {
   println("Expected:")
   println(demo_file)
   println("")
+}
+
+fn main {
+  main_parser()
 }
 
 pub extern "js" fn fsReadSync(path : String) -> String =

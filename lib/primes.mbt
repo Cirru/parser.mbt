@@ -19,6 +19,24 @@ pub fn to_json(self : Cirru) -> Json {
   }
 }
 
+pub impl @json.FromJson for Cirru with from_json(json, path) {
+  match json {
+    String(a) => {
+      Cirru::Leaf(a)
+    }
+    Array(xs) => {
+    let ys = []
+      for idx, x in xs {
+        let v = @json.FromJson::from_json!(x, path.add_index(idx))
+        ys.push(v)
+      }
+      Cirru::List(ys)
+    }
+    // _ => @json.decode_error!((path, "Char::from_json: expected string"))
+    _ => raise @json.JsonDecodeError((path, "Cirru::from_json: expected string or array"))
+  }
+}
+
 fn Cirru::default() -> Cirru {
   Cirru::List(Array::new())
 }

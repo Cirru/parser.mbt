@@ -133,8 +133,9 @@ pub struct CirruWriterOptions {
   use_inline : Bool
 }
 
-fn get_node_kind(cursor : Cirru) -> WriterNode {
-  match cursor {
+/// kind for writer nodes
+fn get_node_kind(self : Cirru) -> WriterNode {
+  match self {
     Cirru::Leaf(_) => WriterNode::Leaf
     Cirru::List(xs) =>
       if xs.is_empty() {
@@ -149,7 +150,7 @@ fn get_node_kind(cursor : Cirru) -> WriterNode {
   }
 }
 
-type! GenerateTreeError String
+type! FormatCirruError String
 
 fn generate_tree(
   xs : Array[Cirru],
@@ -157,7 +158,7 @@ fn generate_tree(
   options : CirruWriterOptions,
   base_level : Int,
   in_tail : Bool
-) -> String!GenerateTreeError {
+) -> String!FormatCirruError {
   let mut prev_kind = WriterNode::Nil
   let mut level = base_level
   let mut result = ""
@@ -234,7 +235,7 @@ fn generate_tree(
             ret
           }
         } else {
-          raise GenerateTreeError("Unpected condition")
+          raise FormatCirruError("Unpected condition")
         }
     }
     let bended = kind == WriterNode::Leaf &&
@@ -287,12 +288,11 @@ fn generate_tree(
 fn generate_statements(
   ys : Array[Cirru],
   options : CirruWriterOptions
-) -> String!GenerateTreeError {
+) -> String!FormatCirruError {
   let mut zs = ""
   for y in ys {
     match y {
-      Cirru::Leaf(_) =>
-        raise GenerateTreeError("expected an exprs at top level")
+      Cirru::Leaf(_) => raise FormatCirruError("expected an exprs at top level")
       Cirru::List(cs) => {
         zs = zs + "\n"
         zs = zs + generate_tree!(cs, true, options, 0, false)
@@ -307,6 +307,6 @@ fn generate_statements(
 pub fn format(
   xs : Array[Cirru],
   options : CirruWriterOptions
-) -> String!GenerateTreeError {
+) -> String!FormatCirruError {
   generate_statements!(xs, options)
 }

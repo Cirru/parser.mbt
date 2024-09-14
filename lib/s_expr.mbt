@@ -1,17 +1,18 @@
 type! FormatError String
 
-/// format to Cirru to WAT
+/// format program to Cirru to Lisp-like code
 pub fn format_to_lisp(xs : Array[Cirru]) -> String!FormatError {
   let mut content : String = "\n"
   for expr in xs {
-    content = "\{content}\{format_expr!(expr, 0)}"
+    content = content + expr.format_lispy_expr!(0)
   }
   content
 }
 
-pub fn format_expr(node : Cirru, indent : Int) -> String!FormatError {
+/// format single expression to Lisp-like code
+fn format_lispy_expr(self : Cirru, indent : Int) -> String!FormatError {
   let emptySpace = " "
-  match node {
+  match self {
     Cirru::List(xs) =>
       if xs.length() > 0 && xs[0].is_comment() {
         let mut chunk : String = "\{gen_newline(indent)};;"
@@ -30,7 +31,7 @@ pub fn format_expr(node : Cirru, indent : Int) -> String!FormatError {
           if x.is_nested() {
             chunk = "\{chunk.trim_right(emptySpace)}\{gen_newline(indent + 1)}"
           }
-          let next = format_expr!(x, indent + 1)
+          let next = format_lispy_expr!(x, indent + 1)
           if next.starts_with("\n") {
             chunk = "\{chunk.trim_right(emptySpace)}\{next}"
           } else {
@@ -49,7 +50,7 @@ pub fn format_expr(node : Cirru, indent : Int) -> String!FormatError {
       } else {
         let s0 = token[0]
         if s0 == '|' || s0 == '"' {
-          "\"\{escape_string(token.substring(start:1))}\""
+          "\"" + escape_string(token.substring(start=1)) + "\""
         } else if token.contains(" ") ||
           token.contains("\n") ||
           token.contains("\"") {
@@ -61,7 +62,7 @@ pub fn format_expr(node : Cirru, indent : Int) -> String!FormatError {
   }
 }
 
-pub fn ends_with_newline(s : String) -> Bool {
+fn ends_with_newline(s : String) -> Bool {
   for c in s.rev() {
     if c == 'c' {
       continue
@@ -73,7 +74,7 @@ pub fn ends_with_newline(s : String) -> Bool {
   false
 }
 
-pub fn gen_newline(n : Int) -> String {
+fn gen_newline(n : Int) -> String {
   let mut chunk : String = ""
   chunk = "\{chunk}\n"
   for i = 0; i < n; i = i + i {
@@ -83,7 +84,7 @@ pub fn gen_newline(n : Int) -> String {
 }
 
 /// `.escape_default()` in Rust
-pub fn escape_string(s : String) -> String {
+fn escape_string(s : String) -> String {
   let mut chunk : String = ""
   for c in s {
     match c {

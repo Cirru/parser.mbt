@@ -6,6 +6,37 @@ pub enum Cirru {
   List(Array[Cirru])
 } derive(Eq)
 
+pub fn to_json(self : Cirru) -> Json {
+  match self {
+    Cirru::Leaf(s) => Json::String(s)
+    Cirru::List(xs) => {
+      let out = Array::new()
+      for x in xs {
+        out.push(x.to_json())
+      }
+      Json::Array(out)
+    }
+  }
+}
+
+pub impl @json.FromJson for Cirru with from_json(json, path) {
+  match json {
+    String(a) => {
+      Cirru::Leaf(a)
+    }
+    Array(xs) => {
+    let ys = []
+      for idx, x in xs {
+        let v = @json.FromJson::from_json!(x, path.add_index(idx))
+        ys.push(v)
+      }
+      Cirru::List(ys)
+    }
+    // _ => @json.decode_error!((path, "Char::from_json: expected string"))
+    _ => raise @json.JsonDecodeError((path, "Cirru::from_json: expected string or array"))
+  }
+}
+
 fn Cirru::default() -> Cirru {
   Cirru::List(Array::new())
 }
@@ -16,7 +47,12 @@ pub fn output(self : Cirru, logger : Logger) -> Unit {
 
 pub fn to_string(self : Cirru) -> String {
   match self {
-    Cirru::Leaf(s) => s
+    Cirru::Leaf(s) =>
+      if CirruLexItem::is_normal_str(s) {
+        return s
+      } else {
+        return escape_cirru_leaf(s)
+      }
     Cirru::List(xs) => {
       let mut out = ""
       for i = 0; i < xs.length(); i = i + 1 {

@@ -6,7 +6,7 @@ pub enum Cirru {
   List(Array[Cirru])
 } derive(Eq)
 
-impl Hash for Cirru with hash(self) {
+pub impl Hash for Cirru with hash(self) {
   let mut i = 0
   match self {
     Cirru::Leaf(s) => i = s.length()
@@ -18,7 +18,7 @@ impl Hash for Cirru with hash(self) {
   i
 }
 
-impl Hash for Cirru with hash_combine(self, hasher) {
+pub impl Hash for Cirru with hash_combine(self, hasher) {
   match self {
     Cirru::Leaf(s) => hasher.combine_string(s)
     Cirru::List(xs) =>

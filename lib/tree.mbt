@@ -1,4 +1,4 @@
-pub fn resolve_comma(xs : Array[Cirru]) -> Array[Cirru] {
+fn resolve_comma(xs : Array[Cirru]) -> Array[Cirru] {
   if xs.is_empty() {
     []
   } else {
@@ -35,7 +35,7 @@ fn comma_helper(initial_after : Array[Cirru]) -> Array[Cirru] {
   }
 }
 
-pub fn resolve_dollar(xs : Array[Cirru]) -> Array[Cirru] {
+fn resolve_dollar(xs : Array[Cirru]) -> Array[Cirru] {
   if xs.is_empty() {
     []
   } else {

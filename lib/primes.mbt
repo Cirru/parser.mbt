@@ -6,6 +6,28 @@ pub enum Cirru {
   List(Array[Cirru])
 } derive(Eq)
 
+impl Hash for Cirru with hash(self) {
+  let mut i = 0
+  match self {
+    Cirru::Leaf(s) => i = s.length()
+    Cirru::List(xs) =>
+      for _ in xs {
+        i = i + 1 // TODO: how to hash a list?
+      }
+  }
+  i
+}
+
+impl Hash for Cirru with hash_combine(self, hasher) {
+  match self {
+    Cirru::Leaf(s) => hasher.combine_string(s)
+    Cirru::List(xs) =>
+      for x in xs {
+        hasher.combine(x)
+      }
+  }
+}
+
 pub fn to_json(self : Cirru) -> Json {
   match self {
     Cirru::Leaf(s) => Json::String(s)
@@ -21,11 +43,9 @@ pub fn to_json(self : Cirru) -> Json {
 
 pub impl @json.FromJson for Cirru with from_json(json, path) {
   match json {
-    String(a) => {
-      Cirru::Leaf(a)
-    }
+    String(a) => Cirru::Leaf(a)
     Array(xs) => {
-    let ys = []
+      let ys = []
       for idx, x in xs {
         let v = @json.FromJson::from_json!(x, path.add_index(idx))
         ys.push(v)
@@ -33,7 +53,10 @@ pub impl @json.FromJson for Cirru with from_json(json, path) {
       Cirru::List(ys)
     }
     // _ => @json.decode_error!((path, "Char::from_json: expected string"))
-    _ => raise @json.JsonDecodeError((path, "Cirru::from_json: expected string or array"))
+    _ =>
+      raise @json.JsonDecodeError(
+        (path, "Cirru::from_json: expected string or array"),
+      )
   }
 }
 

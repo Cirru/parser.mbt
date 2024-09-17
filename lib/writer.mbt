@@ -150,7 +150,13 @@ fn get_node_kind(self : Cirru) -> WriterNode {
   }
 }
 
-type! FormatCirruError String
+pub type! FormatCirruError String
+
+pub fn to_string(self : FormatCirruError) -> String {
+  match self {
+    FormatCirruError(s) => s
+  }
+}
 
 fn generate_tree(
   xs : Array[Cirru],

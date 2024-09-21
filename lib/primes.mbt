@@ -90,6 +90,26 @@ pub fn to_string(self : Cirru) -> String {
   }
 }
 
+pub fn compare(self : Cirru, other : Cirru) -> Int {
+  match (self, other) {
+    (Cirru::Leaf(a), Cirru::Leaf(b)) => a.compare(b)
+    (Cirru::List(xs), Cirru::List(ys)) => {
+      let size = @math.minimum(xs.length(), ys.length())
+      for i = 0; i < size; i = i + 1 {
+        let x = xs[i]
+        let y = ys[i]
+        let c = x.compare(y)
+        if c != 0 {
+          return c
+        }
+      }
+      return xs.length().compare(ys.length())
+    }
+    (Cirru::Leaf(_), Cirru::List(_)) => -1
+    (Cirru::List(_), Cirru::Leaf(_)) => 1
+  }
+}
+
 pub fn debug_write(self : Cirru, buffer : Buffer) -> Unit {
   match self {
     Cirru::Leaf(s) => buffer.write_string(s)

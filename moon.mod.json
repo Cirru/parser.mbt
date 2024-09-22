@@ -3,8 +3,8 @@
   "version": "0.0.6",
   "deps": {},
   "readme": "README.md",
-  "repository": "",
+  "repository": "https://github.com/Cirru/parser.mbt",
   "license": "Apache-2.0",
-  "keywords": [],
+  "keywords": ["Cirru"],
   "description": "parser for Cirru Syntax"
 }

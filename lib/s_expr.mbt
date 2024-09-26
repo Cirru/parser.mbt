@@ -23,17 +23,17 @@ fn format_lispy_expr(self : Cirru, indent : Int) -> String!FormatError {
         }
 
         // chunk = format!("{}{}", chunk.trim_end(), gen_newline(indent));
-        chunk = "\{chunk.trim_right(emptySpace)}\{gen_newline(indent)}"
+        chunk = "\{chunk.trim_end(emptySpace)}\{gen_newline(indent)}"
         chunk
       } else {
         let mut chunk = "("
         for idx, x in xs {
           if x.is_nested() {
-            chunk = "\{chunk.trim_right(emptySpace)}\{gen_newline(indent + 1)}"
+            chunk = "\{chunk.trim_end(emptySpace)}\{gen_newline(indent + 1)}"
           }
           let next = format_lispy_expr!(x, indent + 1)
           if next.starts_with("\n") {
-            chunk = "\{chunk.trim_right(emptySpace)}\{next}"
+            chunk = "\{chunk.trim_end(emptySpace)}\{next}"
           } else {
             chunk = "\{chunk}\{next}"
           }

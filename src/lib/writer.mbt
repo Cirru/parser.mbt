@@ -129,7 +129,7 @@ fn render_newline(n : Int) -> String {
 }
 
 /// options for writer, `use_inline` for more compact format.
-pub struct CirruWriterOptions {
+pub(all) struct CirruWriterOptions {
   use_inline : Bool
 }
 
@@ -150,7 +150,7 @@ fn get_node_kind(self : Cirru) -> WriterNode {
   }
 }
 
-pub type! FormatCirruError String
+pub(all) type! FormatCirruError String
 
 pub fn to_string(self : FormatCirruError) -> String {
   match self {

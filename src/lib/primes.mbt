@@ -1,5 +1,5 @@
 /// Cirru uses nested Vecters and Strings as data structure
-pub enum Cirru {
+pub(all) enum Cirru {
   /// Leaf node, with a string
   Leaf(String)
   /// List node, with a list of children

@@ -1,0 +1,64 @@
+package tiye/cirru-parser/lib
+
+// Values
+fn format(Array[Cirru], CirruWriterOptions) -> String!FormatCirruError
+
+fn format_to_lisp(Array[Cirru]) -> String!FormatError
+
+fn parse(String) -> Array[Cirru]!CirruParseError
+
+// Types and methods
+pub(all) enum Cirru {
+  Leaf(String)
+  List(Array[Cirru])
+}
+impl Cirru {
+  compare(Self, Self) -> Int
+  debug_write(Self, Buffer) -> Unit
+  is_comment(Self) -> Bool
+  is_empty(Self) -> Bool
+  is_nested(Self) -> Bool
+  length(Self) -> Int
+  op_equal(Self, Self) -> Bool
+  output(Self, Logger) -> Unit
+  to_json(Self) -> Json
+  to_string(Self) -> String
+}
+impl Eq for Cirru
+impl Hash for Cirru
+impl @moonbitlang/core/json.FromJson for Cirru
+
+type CirruLexItem
+
+type CirruLexState
+impl CirruLexState {
+  to_string(Self) -> String
+}
+impl Show for CirruLexState
+
+type CirruParseError
+impl CirruParseError {
+  to_string(Self) -> String
+}
+
+pub(all) struct CirruWriterOptions {
+  use_inline : Bool
+}
+
+pub(all) type! FormatCirruError String
+impl FormatCirruError {
+  to_string(Self) -> String
+}
+
+type FormatError
+
+type WriterNode
+impl WriterNode {
+  op_equal(Self, Self) -> Bool
+}
+impl Eq for WriterNode
+
+// Type aliases
+
+// Traits
+

@@ -1,4 +1,4 @@
-/// Cirru uses nested Vecters and Strings as data structure
+///| Cirru uses nested Vecters and Strings as data structure
 pub(all) enum Cirru {
   /// Leaf node, with a string
   Leaf(String)
@@ -6,6 +6,7 @@ pub(all) enum Cirru {
   List(Array[Cirru])
 } derive(Eq)
 
+///|
 pub impl Hash for Cirru with hash(self) {
   let mut i = 0
   match self {
@@ -18,6 +19,7 @@ pub impl Hash for Cirru with hash(self) {
   i
 }
 
+///|
 pub impl Hash for Cirru with hash_combine(self, hasher) {
   match self {
     Cirru::Leaf(s) => hasher.combine_string(s)
@@ -28,6 +30,7 @@ pub impl Hash for Cirru with hash_combine(self, hasher) {
   }
 }
 
+///|
 pub fn to_json(self : Cirru) -> Json {
   match self {
     Cirru::Leaf(s) => Json::String(s)
@@ -41,6 +44,7 @@ pub fn to_json(self : Cirru) -> Json {
   }
 }
 
+///|
 pub impl @json.FromJson for Cirru with from_json(json, path) {
   match json {
     String(a) => Cirru::Leaf(a)
@@ -60,14 +64,17 @@ pub impl @json.FromJson for Cirru with from_json(json, path) {
   }
 }
 
+///|
 fn Cirru::default() -> Cirru {
   Cirru::List(Array::new())
 }
 
+///|
 pub fn output(self : Cirru, logger : Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
+///|
 pub fn to_string(self : Cirru) -> String {
   match self {
     Cirru::Leaf(s) =>
@@ -90,6 +97,7 @@ pub fn to_string(self : Cirru) -> String {
   }
 }
 
+///|
 pub fn compare(self : Cirru, other : Cirru) -> Int {
   match (self, other) {
     (Cirru::Leaf(a), Cirru::Leaf(b)) => a.compare(b)
@@ -110,23 +118,7 @@ pub fn compare(self : Cirru, other : Cirru) -> Int {
   }
 }
 
-pub fn debug_write(self : Cirru, buffer : Buffer) -> Unit {
-  match self {
-    Cirru::Leaf(s) => buffer.write_string(s)
-    Cirru::List(xs) => {
-      buffer.write_char('(')
-      for i = 0; i < xs.length(); i = i + 1 {
-        let x = xs[i]
-        buffer.write_string(x.to_string())
-        if i < xs.length() - 1 {
-          buffer.write_char(' ')
-        }
-      }
-      buffer.write_char(')')
-    }
-  }
-}
-
+///|
 pub fn length(self : Cirru) -> Int {
   match self {
     Leaf(s) => s.length()
@@ -134,6 +126,7 @@ pub fn length(self : Cirru) -> Int {
   }
 }
 
+///|
 pub fn is_empty(self : Cirru) -> Bool {
   match self {
     Leaf(s) => s.length() == 0
@@ -141,6 +134,7 @@ pub fn is_empty(self : Cirru) -> Bool {
   }
 }
 
+///|
 pub fn is_nested(self : Cirru) -> Bool {
   match self {
     Leaf(_) => false
@@ -156,6 +150,7 @@ pub fn is_nested(self : Cirru) -> Bool {
   }
 }
 
+///|
 pub fn is_comment(self : Cirru) -> Bool {
   match self {
     Leaf(s) => s[0] == ';'
@@ -163,6 +158,7 @@ pub fn is_comment(self : Cirru) -> Bool {
   }
 }
 
+///|
 enum CirruLexState {
   Space
   Token
@@ -171,6 +167,7 @@ enum CirruLexState {
   Str
 } derive(Show)
 
+///|
 enum CirruLexItem {
   Open
   Close
@@ -178,10 +175,12 @@ enum CirruLexItem {
   Str(String)
 }
 
+///|
 fn output(self : CirruLexItem, logger : Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
+///|
 fn to_string(self : CirruLexItem) -> String {
   match self {
     CirruLexItem::Open => "("
@@ -191,6 +190,7 @@ fn to_string(self : CirruLexItem) -> String {
   }
 }
 
+///|
 fn CirruLexItem::is_normal_str(tok : String) -> Bool {
   let size = tok.length()
   if size == 0 {
@@ -227,6 +227,7 @@ fn CirruLexItem::is_normal_str(tok : String) -> Bool {
   return true
 }
 
+///|
 fn escape_cirru_leaf(s : String) -> String {
   if is_normal_str(s) {
     return "\"\{s}\""

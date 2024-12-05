@@ -1,3 +1,4 @@
+///|
 pub fn main_parser() -> Unit {
   // let tree = @lib.parse?("DEMO")
   // match tree {
@@ -23,19 +24,18 @@ pub fn main_parser() -> Unit {
   }
 }
 
+///|
 pub fn main_writer() -> Unit {
   let demo = "unfolding"
   let demo_file = fsReadSync("./test/cirru/\{demo}.cirru")
   let json_file = fsReadSync("./test/data/\{demo}.json")
-
-  let defined=   @json.parse?(json_file).unwrap()
-  let tree: Array[@lib.Cirru] = @json.from_json?(defined).unwrap()
+  let defined = @json.parse?(json_file).unwrap()
+  let tree : Array[@lib.Cirru] = @json.from_json?(defined).unwrap()
   println("TREE:")
   for item in tree {
     println(item.to_json().stringify())
   }
-
-  let ret = @lib.format?(tree, {use_inline: false}).unwrap()
+  let ret = @lib.format?(tree, { use_inline: false }).unwrap()
   println("Generated:")
   println(ret)
   println("Expected:")
@@ -43,10 +43,12 @@ pub fn main_writer() -> Unit {
   println("")
 }
 
+///|
 fn main {
   main_parser()
 }
 
+///|
 pub extern "js" fn fsReadSync(path : String) -> String =
   #|(path) => {
   #|  const fs = require("node:fs");

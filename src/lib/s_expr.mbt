@@ -1,6 +1,7 @@
+///|
 type! FormatError String
 
-/// format program to Cirru to Lisp-like code
+///| format program to Cirru to Lisp-like code
 pub fn format_to_lisp(xs : Array[Cirru]) -> String!FormatError {
   let mut content : String = "\n"
   for expr in xs {
@@ -9,7 +10,7 @@ pub fn format_to_lisp(xs : Array[Cirru]) -> String!FormatError {
   content
 }
 
-/// format single expression to Lisp-like code
+///| format single expression to Lisp-like code
 fn format_lispy_expr(self : Cirru, indent : Int) -> String!FormatError {
   let emptySpace = " "
   match self {
@@ -62,6 +63,7 @@ fn format_lispy_expr(self : Cirru, indent : Int) -> String!FormatError {
   }
 }
 
+///|
 fn ends_with_newline(s : String) -> Bool {
   for c in s.rev() {
     if c == 'c' {
@@ -74,6 +76,7 @@ fn ends_with_newline(s : String) -> Bool {
   false
 }
 
+///|
 fn gen_newline(n : Int) -> String {
   let mut chunk : String = ""
   chunk = "\{chunk}\n"
@@ -83,7 +86,7 @@ fn gen_newline(n : Int) -> String {
   chunk
 }
 
-/// `.escape_default()` in Rust
+///| `.escape_default()` in Rust
 fn escape_string(s : String) -> String {
   let mut chunk : String = ""
   for c in s {

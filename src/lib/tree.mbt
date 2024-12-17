@@ -1,3 +1,4 @@
+///|
 fn resolve_comma(xs : Array[Cirru]) -> Array[Cirru] {
   if xs.is_empty() {
     []
@@ -6,6 +7,7 @@ fn resolve_comma(xs : Array[Cirru]) -> Array[Cirru] {
   }
 }
 
+///|
 fn comma_helper(initial_after : Array[Cirru]) -> Array[Cirru] {
   let before : Array[Cirru] = []
   let after : Array[Cirru] = initial_after
@@ -35,6 +37,7 @@ fn comma_helper(initial_after : Array[Cirru]) -> Array[Cirru] {
   }
 }
 
+///|
 fn resolve_dollar(xs : Array[Cirru]) -> Array[Cirru] {
   if xs.is_empty() {
     []
@@ -43,6 +46,7 @@ fn resolve_dollar(xs : Array[Cirru]) -> Array[Cirru] {
   }
 }
 
+///|
 fn dollar_helper(initial_after : Array[Cirru]) -> Array[Cirru] {
   let before : Array[Cirru] = []
   let after : Array[Cirru] = initial_after

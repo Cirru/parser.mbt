@@ -70,7 +70,7 @@ fn Cirru::default() -> Cirru {
 }
 
 ///|
-pub fn output(self : Cirru, logger : Logger) -> Unit {
+pub fn output(self : Cirru, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
@@ -176,7 +176,7 @@ enum CirruLexItem {
 }
 
 ///|
-fn output(self : CirruLexItem, logger : Logger) -> Unit {
+fn output(self : CirruLexItem, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 

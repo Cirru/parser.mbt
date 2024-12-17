@@ -1,3 +1,4 @@
+///|
 enum WriterNode {
   Nil
   Leaf
@@ -6,18 +7,23 @@ enum WriterNode {
   Expr
 } derive(Eq)
 
+///|
 let char_close : Char = ')'
 
+///|
 let char_open : Char = '('
 
+///|
 let allowed_chars : String = "$-:<>[]{}*=+.,\\/!?~_@#&%^|;'"
 
+///|
 fn is_a_digit(c : Char) -> Bool {
   let n = c.to_int()
   // ascii table https://tool.oschina.net/commons?type=4
   n >= 48 && n <= 57
 }
 
+///|
 fn is_a_letter(c : Char) -> Bool {
   let n = c.to_int()
   if n >= 65 && n <= 90 {
@@ -29,6 +35,7 @@ fn is_a_letter(c : Char) -> Bool {
   false
 }
 
+///|
 fn is_simple_expr(ys : Array[Cirru]) -> Bool {
   for y in ys {
     match y {
@@ -39,6 +46,7 @@ fn is_simple_expr(ys : Array[Cirru]) -> Bool {
   true
 }
 
+///|
 fn is_boxed(ys : Array[Cirru]) -> Bool {
   for y in ys {
     match y {
@@ -49,10 +57,12 @@ fn is_boxed(ys : Array[Cirru]) -> Bool {
   true
 }
 
+///|
 fn is_simple_char(x : Char) -> Bool {
   is_a_letter(x) || is_a_digit(x)
 }
 
+///|
 fn is_char_allowed(x : Char) -> Bool {
   if is_simple_char(x) {
     return true
@@ -60,6 +70,7 @@ fn is_char_allowed(x : Char) -> Bool {
   allowed_chars.contains_char(x)
 }
 
+///|
 fn generate_leaf(s : String) -> String {
   let mut all_allowed = true
   for x in s {
@@ -89,10 +100,12 @@ fn generate_leaf(s : String) -> String {
   }
 }
 
+///|
 fn generate_empty_expr() -> String {
   "()"
 }
 
+///|
 fn generate_inline_expr(xs : Array[Cirru]) -> String {
   let mut result = char_open.to_string()
   for idx, x in xs {
@@ -109,7 +122,7 @@ fn generate_inline_expr(xs : Array[Cirru]) -> String {
   result
 }
 
-/// by 2 spaces
+///| by 2 spaces
 fn push_spaces(buf : String, n : Int) -> String {
   let mut ret = buf
   // for _ in 0..n {
@@ -121,6 +134,7 @@ fn push_spaces(buf : String, n : Int) -> String {
   return ret
 }
 
+///|
 fn render_newline(n : Int) -> String {
   let mut ret = ""
   ret = ret + "\n"
@@ -128,12 +142,12 @@ fn render_newline(n : Int) -> String {
   ret
 }
 
-/// options for writer, `use_inline` for more compact format.
+///| options for writer, `use_inline` for more compact format.
 pub(all) struct CirruWriterOptions {
   use_inline : Bool
 }
 
-/// kind for writer nodes
+///| kind for writer nodes
 fn get_node_kind(self : Cirru) -> WriterNode {
   match self {
     Cirru::Leaf(_) => WriterNode::Leaf
@@ -150,14 +164,17 @@ fn get_node_kind(self : Cirru) -> WriterNode {
   }
 }
 
+///|
 pub(all) type! FormatCirruError String
 
+///|
 pub fn to_string(self : FormatCirruError) -> String {
   match self {
     FormatCirruError(s) => s
   }
 }
 
+///|
 fn generate_tree(
   xs : Array[Cirru],
   insist_head : Bool,
@@ -291,6 +308,7 @@ fn generate_tree(
   result
 }
 
+///|
 fn generate_statements(
   ys : Array[Cirru],
   options : CirruWriterOptions
@@ -309,7 +327,7 @@ fn generate_statements(
   zs
 }
 
-/// format Cirru code, use options to control `use_inline` option
+///| format Cirru code, use options to control `use_inline` option
 pub fn format(
   xs : Array[Cirru],
   options : CirruWriterOptions

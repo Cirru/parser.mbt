@@ -75,7 +75,7 @@ pub fn output(self : Cirru, logger : &Logger) -> Unit {
 }
 
 ///|
-pub fn to_string(self : Cirru) -> String {
+pub fn Cirru::to_string(self : Cirru) -> String {
   match self {
     Cirru::Leaf(s) =>
       if CirruLexItem::is_normal_str(s) {
@@ -176,12 +176,12 @@ enum CirruLexItem {
 }
 
 ///|
-fn output(self : CirruLexItem, logger : &Logger) -> Unit {
+fn CirruLexItem::output(self : CirruLexItem, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
 ///|
-fn to_string(self : CirruLexItem) -> String {
+fn CirruLexItem::to_string(self : CirruLexItem) -> String {
   match self {
     CirruLexItem::Open => "("
     CirruLexItem::Close => ")"
@@ -229,7 +229,7 @@ fn CirruLexItem::is_normal_str(tok : String) -> Bool {
 
 ///|
 fn escape_cirru_leaf(s : String) -> String {
-  if is_normal_str(s) {
+  if CirruLexItem::is_normal_str(s) {
     return "\"\{s}\""
   } else {
     let mut out = "\""

@@ -168,7 +168,7 @@ fn get_node_kind(self : Cirru) -> WriterNode {
 pub(all) type! FormatCirruError String
 
 ///|
-pub fn to_string(self : FormatCirruError) -> String {
+pub fn FormatCirruError::to_string(self : FormatCirruError) -> String {
   match self {
     FormatCirruError(s) => s
   }

@@ -31,7 +31,7 @@ pub impl Hash for Cirru with hash_combine(self, hasher) {
 }
 
 ///|
-pub fn to_json(self : Cirru) -> Json {
+pub impl ToJson for Cirru with to_json(self : Cirru) -> Json {
   match self {
     Cirru::Leaf(s) => Json::String(s)
     Cirru::List(xs) => {
@@ -70,7 +70,7 @@ fn Cirru::default() -> Cirru {
 }
 
 ///|
-pub fn output(self : Cirru, logger : &Logger) -> Unit {
+pub impl Show for Cirru with output(self : Cirru, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
@@ -159,7 +159,7 @@ pub fn is_comment(self : Cirru) -> Bool {
 }
 
 ///|
-enum CirruLexState {
+priv enum CirruLexState {
   Space
   Token
   Escape
@@ -168,7 +168,7 @@ enum CirruLexState {
 } derive(Show)
 
 ///|
-enum CirruLexItem {
+priv enum CirruLexItem {
   Open
   Close
   Indent(Int)
@@ -176,7 +176,7 @@ enum CirruLexItem {
 }
 
 ///|
-fn CirruLexItem::output(self : CirruLexItem, logger : &Logger) -> Unit {
+impl Show for CirruLexItem with output(self : CirruLexItem, logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 

@@ -1,5 +1,5 @@
 ///|
-enum WriterNode {
+priv enum WriterNode {
   Nil
   Leaf
   SimpleExpr

@@ -33,7 +33,7 @@ fn format_lispy_expr(self : Cirru, indent : Int) -> String!FormatError {
             chunk = "\{chunk.trim_end(emptySpace)}\{gen_newline(indent + 1)}"
           }
           let next = format_lispy_expr!(x, indent + 1)
-          if next.starts_with("\n") {
+          if next.has_prefix("\n") {
             chunk = "\{chunk.trim_end(emptySpace)}\{next}"
           } else {
             chunk = "\{chunk}\{next}"

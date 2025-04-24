@@ -237,7 +237,7 @@ fn generate_tree(
           let content = generate_tree!(
             ys, child_insist_head, options, next_level, false,
           )
-          if content.starts_with("\n") {
+          if content.has_prefix("\n") {
             content
           } else {
             let mut ret = render_newline(next_level)

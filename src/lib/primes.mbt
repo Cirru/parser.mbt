@@ -33,13 +33,13 @@ pub impl Hash for Cirru with hash_combine(self, hasher) {
 ///|
 pub impl ToJson for Cirru with to_json(self : Cirru) -> Json {
   match self {
-    Cirru::Leaf(s) => Json::String(s)
+    Cirru::Leaf(s) => Json::string(s)
     Cirru::List(xs) => {
       let out = Array::new()
       for x in xs {
         out.push(x.to_json())
       }
-      Json::Array(out)
+      Json::array(out)
     }
   }
 }

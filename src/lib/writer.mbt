@@ -1,19 +1,24 @@
 ///|
 priv enum WriterNode {
+  /// Nil node, which is used to indicate no previous node
   Nil
+  /// Leaf node, which is a string
   Leaf
+  /// SimpleExpr node, which is a simple expression with no nested lists
   SimpleExpr
+  /// Simple expression, which is a list with no nested lists
   BoxedExpr
+  /// Expr node, which can be complex
   Expr
 } derive(Eq)
 
-///|
+///| `)`, end of a list
 let char_close : Char = ')'
 
-///|
+///| `(`, start of a list)
 let char_open : Char = '('
 
-///|
+///| Allowed characters in a leaf node, which can be used to generate a string safely
 let allowed_chars : String = "$-:<>[]{}*=+.,\\/!?~_@#&%^|;'"
 
 ///|
@@ -25,17 +30,14 @@ fn is_a_digit(c : Char) -> Bool {
 
 ///|
 fn is_a_letter(c : Char) -> Bool {
-  let n = c.to_int()
-  if n >= 65 && n <= 90 {
-    return true
+  match c {
+    'A'..='Z' => true
+    'a'..='z' => true
+    _ => false
   }
-  if n >= 97 && n <= 122 {
-    return true
-  }
-  false
 }
 
-///|
+///| Check if the expression is simple, which means it has no nested lists
 fn is_simple_expr(ys : Array[Cirru]) -> Bool {
   for y in ys {
     match y {
@@ -46,18 +48,18 @@ fn is_simple_expr(ys : Array[Cirru]) -> Bool {
   true
 }
 
-///|
+///| Check if the expression is boxed, which means it has no nested lists
 fn is_boxed(ys : Array[Cirru]) -> Bool {
   for y in ys {
     match y {
-      List(_) => return false
-      Leaf(_) => ()
+      Leaf(_) => return false
+      List(_) => ()
     }
   }
   true
 }
 
-///|
+///| Check if the character is a simple character, which means it is a letter or a digit
 fn is_simple_char(x : Char) -> Bool {
   is_a_letter(x) || is_a_digit(x)
 }
@@ -70,7 +72,7 @@ fn is_char_allowed(x : Char) -> Bool {
   allowed_chars.contains_char(x)
 }
 
-///|
+///| Generate a leaf node, which is a string that may contain special characters
 fn generate_leaf(s : String) -> String {
   let mut all_allowed = true
   for x in s {
@@ -83,19 +85,19 @@ fn generate_leaf(s : String) -> String {
     s.to_string()
   } else {
     let mut ret = ""
-    ret = ret + "\""
+    ret += "\""
     for c in s {
-      ret = ret +
-        (match c {
-          '\n' => "\\n"
-          '\t' => "\\t"
-          '\"' => "\\\""
-          '\\' => "\\\\"
-          '\'' => "\\'"
-          _ => "\{c}"
-        })
+      let content = match c {
+        '\n' => "\\n"
+        '\t' => "\\t"
+        '\"' => "\\\""
+        '\\' => "\\\\"
+        '\'' => "\\'"
+        _ => "\{c}"
+      }
+      ret += content
     }
-    ret = ret + "\""
+    ret += "\""
     ret
   }
 }
@@ -110,26 +112,23 @@ fn generate_inline_expr(xs : Array[Cirru]) -> String {
   let mut result = char_open.to_string()
   for idx, x in xs {
     if idx > 0 {
-      result = result + " "
+      result += " "
     }
     let piece = match x {
       Leaf(s) => generate_leaf(s)
       List(ys) => generate_inline_expr(ys)
     }
-    result = result + piece
+    result += piece
   }
-  result = result + char_close.to_string()
+  result += char_close.to_string()
   result
 }
 
 ///| by 2 spaces
 fn push_spaces(buf : String, n : Int) -> String {
   let mut ret = buf
-  // for _ in 0..n {
-  //   buf.push_str("  ");
-  // }
   for i = 0; i < n; i = i + 1 {
-    ret = ret + "  "
+    ret += "  "
   }
   return ret
 }
@@ -137,7 +136,7 @@ fn push_spaces(buf : String, n : Int) -> String {
 ///|
 fn render_newline(n : Int) -> String {
   let mut ret = ""
-  ret = ret + "\n"
+  ret += "\n"
   ret = push_spaces(ret, n)
   ret
 }
@@ -148,7 +147,7 @@ pub(all) struct CirruWriterOptions {
 }
 
 ///| kind for writer nodes
-fn get_node_kind(self : Cirru) -> WriterNode {
+fn Cirru::get_node_kind(self : Cirru) -> WriterNode {
   match self {
     Leaf(_) => Leaf
     List(xs) =>
@@ -165,14 +164,7 @@ fn get_node_kind(self : Cirru) -> WriterNode {
 }
 
 ///|
-pub(all) type! FormatCirruError String
-
-///|
-pub fn FormatCirruError::to_string(self : FormatCirruError) -> String {
-  match self {
-    FormatCirruError(s) => s
-  }
-}
+pub(all) type! FormatCirruError String derive(Show)
 
 ///|
 fn generate_tree(
@@ -314,9 +306,9 @@ fn generate_statements(
     match y {
       Leaf(_) => raise FormatCirruError("expected an exprs at top level")
       List(cs) => {
-        zs = zs + "\n"
-        zs = zs + generate_tree!(cs, true, options, 0, false)
-        zs = zs + "\n"
+        zs += "\n"
+        zs += generate_tree!(cs, true, options, 0, false)
+        zs += "\n"
       }
     }
   }
@@ -324,7 +316,7 @@ fn generate_statements(
 }
 
 ///| format Cirru code, use options to control `use_inline` option
-pub fn format(
+pub fn Cirru::format(
   xs : Array[Cirru],
   options : CirruWriterOptions
 ) -> String!FormatCirruError {

@@ -71,17 +71,12 @@ impl Default for Cirru with default() -> Cirru {
 
 ///|
 pub impl Show for Cirru with output(self : Cirru, logger : &Logger) -> Unit {
-  logger.write_string(self.to_string())
-}
-
-///|
-pub fn Cirru::to_string(self : Cirru) -> String {
   match self {
     Leaf(s) =>
       if CirruLexItem::is_normal_str(s) {
-        return s
+        logger.write_string(s)
       } else {
-        return escape_cirru_leaf(s)
+        logger.write_string(escape_cirru_leaf(s))
       }
     List(xs) => {
       let mut out = ""
@@ -92,13 +87,13 @@ pub fn Cirru::to_string(self : Cirru) -> String {
           out = "\{out} "
         }
       }
-      return out
+      logger.write_string(out)
     }
   }
 }
 
 ///|
-pub fn compare(self : Cirru, other : Cirru) -> Int {
+pub impl Compare for Cirru with compare(self, other) -> Int {
   match (self, other) {
     (Leaf(a), Leaf(b)) => a.compare(b)
     (List(xs), List(ys)) => {
@@ -119,7 +114,7 @@ pub fn compare(self : Cirru, other : Cirru) -> Int {
 }
 
 ///|
-pub fn length(self : Cirru) -> Int {
+pub fn Cirru::length(self : Cirru) -> Int {
   match self {
     Leaf(s) => s.length()
     List(xs) => xs.length()
@@ -127,7 +122,7 @@ pub fn length(self : Cirru) -> Int {
 }
 
 ///|
-pub fn is_empty(self : Cirru) -> Bool {
+pub fn Cirru::is_empty(self : Cirru) -> Bool {
   match self {
     Leaf(s) => s.length() == 0
     List(xs) => xs.length() == 0
@@ -135,7 +130,7 @@ pub fn is_empty(self : Cirru) -> Bool {
 }
 
 ///|
-pub fn is_nested(self : Cirru) -> Bool {
+pub fn Cirru::is_nested(self : Cirru) -> Bool {
   match self {
     Leaf(_) => false
     List(xs) => {
@@ -151,43 +146,48 @@ pub fn is_nested(self : Cirru) -> Bool {
 }
 
 ///|
-pub fn is_comment(self : Cirru) -> Bool {
+pub fn Cirru::is_comment(self : Cirru) -> Bool {
   match self {
     Leaf(s) => s.char_at(0) == ';'
     _ => false
   }
 }
 
-///|
+///| lexer is a simpler state machine to tokenize Cirru code
 priv enum CirruLexState {
+  /// Space, waiting for next token
   Space
+  /// Token, a normal token
   Token
+  /// Escape, waiting for a character or some special sequence
   Escape
+  /// Working on indentations
   Indent
+  /// Working on a string
   Str
 } derive(Show)
 
-///|
+///| lexer is a simpler state machine to tokenize Cirru code
 priv enum CirruLexItem {
+  /// `(`, start of a list
   Open
+  /// `)`, end of a list
   Close
+  /// Indentation level, used for nested lists
   Indent(Int)
+  /// A string, which can be a normal string or a special one
   Str(String)
 }
 
 ///|
 impl Show for CirruLexItem with output(self : CirruLexItem, logger : &Logger) -> Unit {
-  logger.write_string(self.to_string())
-}
-
-///|
-fn CirruLexItem::to_string(self : CirruLexItem) -> String {
-  match self {
+  let content = match self {
     Open => "("
     Close => ")"
     Indent(size) => "indent(\{size})"
     Str(s) => s
   }
+  logger.write_string(content)
 }
 
 ///|
@@ -199,28 +199,28 @@ fn CirruLexItem::is_normal_str(tok : String) -> Bool {
   let mut i = 0
   while i < size {
     let c = tok.char_at(i)
-    if (c >= 'A' && c <= 'Z') ||
-      (c >= 'a' && c <= 'z') ||
-      c == '-' ||
-      c == '?' ||
-      c == '!' ||
-      c == '+' ||
-      c == '*' ||
-      c == '$' ||
-      c == '@' ||
-      c == '#' ||
-      c == '%' ||
-      c == '&' ||
-      c == '_' ||
-      c == '=' ||
-      c == '|' ||
-      c == ':' ||
-      c == '.' ||
-      c == '<' ||
-      c == '>' {
-      i = i + 1
-    } else {
-      return false
+    match c {
+      'A'..='Z' => ()
+      'a'..='z' => ()
+      '0'..='9' => ()
+      '-' => ()
+      '?' => ()
+      '!' => ()
+      '+' => ()
+      '*' => ()
+      '$' => ()
+      '@' => ()
+      '#' => ()
+      '%' => ()
+      '&' => ()
+      '_' => ()
+      '=' => ()
+      '|' => ()
+      ':' => ()
+      '.' => ()
+      '<' => ()
+      '>' => ()
+      _ => return false
     }
     i = i + 1
   }
@@ -237,22 +237,17 @@ fn escape_cirru_leaf(s : String) -> String {
     let mut i = 0
     while i < size {
       let c = s.char_at(i)
-      if c == '\n' {
-        out = out + "\\n"
-      } else if c == '\t' {
-        out = out + "\\t"
-      } else if c == '"' {
-        out = out + "\\\""
-      } else if c == '\\' {
-        out = out + "\\\\"
-      } else if c == '\'' {
-        out = out + "\\'"
-      } else {
-        out = "\{out}\{c}"
+      match c {
+        '\n' => out += "\\n"
+        '\t' => out += "\\t"
+        '"' => out += "\\\""
+        '\\' => out += "\\\\"
+        '\'' => out += "\\'"
+        _ => out += "\{c}"
       }
       i = i + 1
     }
-    out = out + "\""
+    out += "\""
     return out
   }
 }

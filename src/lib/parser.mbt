@@ -57,7 +57,7 @@ fn build_exprs(tokens : Array[CirruLexItem]) -> Array[Cirru]!CirruParseError {
 }
 
 ///| main function to parse Cirru code into syntax tree
-pub fn parse(code : String) -> Array[Cirru]!CirruParseError {
+pub fn Cirru::parse(code : String) -> Array[Cirru]!CirruParseError {
   let tokens = resolve_indentations(lex!(code))
   // println("tokens: \{tokens}")
   let tree = build_exprs!(tokens)

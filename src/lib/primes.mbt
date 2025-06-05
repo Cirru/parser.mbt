@@ -10,8 +10,8 @@ pub(all) enum Cirru {
 pub impl Hash for Cirru with hash(self) {
   let mut i = 0
   match self {
-    Cirru::Leaf(s) => i = s.length()
-    Cirru::List(xs) =>
+    Leaf(s) => i = s.length()
+    List(xs) =>
       for _ in xs {
         i = i + 1 // TODO: how to hash a list?
       }
@@ -22,8 +22,8 @@ pub impl Hash for Cirru with hash(self) {
 ///|
 pub impl Hash for Cirru with hash_combine(self, hasher) {
   match self {
-    Cirru::Leaf(s) => hasher.combine_string(s)
-    Cirru::List(xs) =>
+    Leaf(s) => hasher.combine_string(s)
+    List(xs) =>
       for x in xs {
         hasher.combine(x)
       }
@@ -33,8 +33,8 @@ pub impl Hash for Cirru with hash_combine(self, hasher) {
 ///|
 pub impl ToJson for Cirru with to_json(self : Cirru) -> Json {
   match self {
-    Cirru::Leaf(s) => Json::string(s)
-    Cirru::List(xs) => {
+    Leaf(s) => Json::string(s)
+    List(xs) => {
       let out = Array::new()
       for x in xs {
         out.push(x.to_json())
@@ -54,7 +54,7 @@ pub impl @json.FromJson for Cirru with from_json(json, path) {
         let v = @json.FromJson::from_json!(x, path.add_index(idx))
         ys.push(v)
       }
-      Cirru::List(ys)
+      List(ys)
     }
     // _ => @json.decode_error!((path, "Char::from_json: expected string"))
     _ =>
@@ -65,8 +65,8 @@ pub impl @json.FromJson for Cirru with from_json(json, path) {
 }
 
 ///|
-fn Cirru::default() -> Cirru {
-  Cirru::List(Array::new())
+impl Default for Cirru with default() -> Cirru {
+  List(Array::new())
 }
 
 ///|
@@ -77,13 +77,13 @@ pub impl Show for Cirru with output(self : Cirru, logger : &Logger) -> Unit {
 ///|
 pub fn Cirru::to_string(self : Cirru) -> String {
   match self {
-    Cirru::Leaf(s) =>
+    Leaf(s) =>
       if CirruLexItem::is_normal_str(s) {
         return s
       } else {
         return escape_cirru_leaf(s)
       }
-    Cirru::List(xs) => {
+    List(xs) => {
       let mut out = ""
       for i = 0; i < xs.length(); i = i + 1 {
         let x = xs[i]
@@ -100,8 +100,8 @@ pub fn Cirru::to_string(self : Cirru) -> String {
 ///|
 pub fn compare(self : Cirru, other : Cirru) -> Int {
   match (self, other) {
-    (Cirru::Leaf(a), Cirru::Leaf(b)) => a.compare(b)
-    (Cirru::List(xs), Cirru::List(ys)) => {
+    (Leaf(a), Leaf(b)) => a.compare(b)
+    (List(xs), List(ys)) => {
       let size = @math.minimum(xs.length(), ys.length())
       for i = 0; i < size; i = i + 1 {
         let x = xs[i]
@@ -113,8 +113,8 @@ pub fn compare(self : Cirru, other : Cirru) -> Int {
       }
       return xs.length().compare(ys.length())
     }
-    (Cirru::Leaf(_), Cirru::List(_)) => -1
-    (Cirru::List(_), Cirru::Leaf(_)) => 1
+    (Leaf(_), List(_)) => -1
+    (List(_), Leaf(_)) => 1
   }
 }
 
@@ -153,7 +153,7 @@ pub fn is_nested(self : Cirru) -> Bool {
 ///|
 pub fn is_comment(self : Cirru) -> Bool {
   match self {
-    Leaf(s) => s[0] == ';'
+    Leaf(s) => s.char_at(0) == ';'
     _ => false
   }
 }
@@ -183,10 +183,10 @@ impl Show for CirruLexItem with output(self : CirruLexItem, logger : &Logger) ->
 ///|
 fn CirruLexItem::to_string(self : CirruLexItem) -> String {
   match self {
-    CirruLexItem::Open => "("
-    CirruLexItem::Close => ")"
-    CirruLexItem::Indent(size) => "indent(\{size})"
-    CirruLexItem::Str(s) => s
+    Open => "("
+    Close => ")"
+    Indent(size) => "indent(\{size})"
+    Str(s) => s
   }
 }
 
@@ -198,7 +198,7 @@ fn CirruLexItem::is_normal_str(tok : String) -> Bool {
   }
   let mut i = 0
   while i < size {
-    let c = tok[i]
+    let c = tok.char_at(i)
     if (c >= 'A' && c <= 'Z') ||
       (c >= 'a' && c <= 'z') ||
       c == '-' ||
@@ -236,7 +236,7 @@ fn escape_cirru_leaf(s : String) -> String {
     let size = s.length()
     let mut i = 0
     while i < size {
-      let c = s[i]
+      let c = s.char_at(i)
       if c == '\n' {
         out = out + "\\n"
       } else if c == '\t' {

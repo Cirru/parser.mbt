@@ -2,25 +2,25 @@
 pub fn main_parser() -> Unit {
   // let tree = @lib.parse?("DEMO")
   // match tree {
-  //   Result::Ok(tree) => {
+  //   Ok(tree) => {
   //   println(tree.to_json().stringify())
   //   println(tree)}
-  //   Result::Err(err) => println(err.to_string())
+  //   Err(err) => println(err.to_string())
   // }
 
   let demo_file = fsReadSync("./test/cirru/unfolding.cirru")
   let json_file = fsReadSync("./test/data/unfolding.json")
   let tree = @lib.parse?(demo_file)
   match tree {
-    Result::Ok(tree) => {
+    Ok(tree) => {
       println(tree.to_json().stringify())
       match @json.parse?(json_file) {
-        Result::Ok(json) => println(json.stringify())
-        Result::Err(err) => println(err.to_string())
+        Ok(json) => println(json.stringify())
+        Err(err) => println(err.to_string())
       }
       // println(tree)
     }
-    Result::Err(err) => println(err.to_string())
+    Err(err) => println(err.to_string())
   }
 }
 

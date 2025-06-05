@@ -1,9 +1,9 @@
+///|
 test "parser" {
-  assert_eq!(@lib.parse!("def a"), [
-    @lib.Cirru::List([@lib.Cirru::Leaf("def"), @lib.Cirru::Leaf("a")]),
-  ])
+  assert_eq!(@lib.parse!("def a"), [List([Leaf("def"), Leaf("a")])])
 }
 
+///|
 test "existed demos" {
   let demos = [
     "comma", "demo", "folding", "html", "indent-twice", "indent", "let", "line",

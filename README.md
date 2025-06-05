@@ -6,12 +6,14 @@ Docs: https://mooncakes.io/docs/#/tiye/cirru-parser/lib/members
 moon add tiye/cirru-parser
 ```
 
-```moon
+```moonbit
+typealias @cirru_parser.Cirru
+
 // parse Cirru code
-@cirru_parser.parse(code: String) : Array[Cirru]!CirruParseError
+Cirru::parse(code: String) : Array[Cirru]!CirruParseError
 
 // format Cirru code
-@cirru_parser.format(cirru: Array[Cirru], {use_inline: false}) : String!FormatCirruError
+Cirru::format(cirru: Array[Cirru], {use_inline: false}) : String!FormatCirruError
 ```
 
 ### License

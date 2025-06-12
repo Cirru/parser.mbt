@@ -1,17 +1,17 @@
 ///|
-type! FormatError String
+suberror FormatError String
 
 ///| format program to Cirru to Lisp-like code
-pub fn format_to_lisp(xs : Array[Cirru]) -> String!FormatError {
+pub fn format_to_lisp(xs : Array[Cirru]) -> String raise FormatError {
   let mut content : String = "\n"
   for expr in xs {
-    content = content + expr.format_lispy_expr!(0)
+    content = content + expr.format_lispy_expr(0)
   }
   content
 }
 
 ///| format single expression to Lisp-like code
-fn format_lispy_expr(self : Cirru, indent : Int) -> String!FormatError {
+fn format_lispy_expr(self : Cirru, indent : Int) -> String raise FormatError {
   let emptySpace = " "
   match self {
     List(xs) =>
@@ -32,7 +32,7 @@ fn format_lispy_expr(self : Cirru, indent : Int) -> String!FormatError {
           if x.is_nested() {
             chunk = "\{chunk.trim_end(emptySpace)}\{gen_newline(indent + 1)}"
           }
-          let next = x.format_lispy_expr!(indent + 1)
+          let next = x.format_lispy_expr(indent + 1)
           if next.has_prefix("\n") {
             chunk = "\{chunk.trim_end(emptySpace)}\{next}"
           } else {

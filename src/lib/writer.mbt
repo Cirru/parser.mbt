@@ -164,7 +164,7 @@ fn Cirru::get_node_kind(self : Cirru) -> WriterNode {
 }
 
 ///|
-pub(all) type! FormatCirruError String derive(Show)
+pub(all) suberror FormatCirruError String derive(Show)
 
 ///|
 fn generate_tree(
@@ -173,7 +173,7 @@ fn generate_tree(
   options : CirruWriterOptions,
   base_level : Int,
   in_tail : Bool
-) -> String!FormatCirruError {
+) -> String raise FormatCirruError {
   let mut prev_kind : WriterNode = Nil
   let mut level = base_level
   let mut result = ""
@@ -198,7 +198,7 @@ fn generate_tree(
             "$"
           } else {
             let mut ret = "$ "
-            ret = ret + generate_tree!(ys, false, options, level, at_tail)
+            ret = ret + generate_tree(ys, false, options, level, at_tail)
             ret
           }
         } else if idx == 0 && insist_head {
@@ -221,11 +221,11 @@ fn generate_tree(
           } else {
             let mut ret = render_newline(next_level)
             ret = ret +
-              generate_tree!(ys, child_insist_head, options, next_level, false)
+              generate_tree(ys, child_insist_head, options, next_level, false)
             ret
           }
         } else if kind == Expr {
-          let content = generate_tree!(
+          let content = generate_tree(
             ys, child_insist_head, options, next_level, false,
           )
           if content.has_prefix("\n") {
@@ -236,7 +236,7 @@ fn generate_tree(
             ret
           }
         } else if kind == BoxedExpr {
-          let content = generate_tree!(
+          let content = generate_tree(
             ys, child_insist_head, options, next_level, false,
           )
           if prev_kind == Nil || prev_kind == Leaf || prev_kind == SimpleExpr {
@@ -300,14 +300,14 @@ fn generate_tree(
 fn generate_statements(
   ys : Array[Cirru],
   options : CirruWriterOptions
-) -> String!FormatCirruError {
+) -> String raise FormatCirruError {
   let mut zs = ""
   for y in ys {
     match y {
       Leaf(_) => raise FormatCirruError("expected an exprs at top level")
       List(cs) => {
         zs += "\n"
-        zs += generate_tree!(cs, true, options, 0, false)
+        zs += generate_tree(cs, true, options, 0, false)
         zs += "\n"
       }
     }
@@ -319,6 +319,6 @@ fn generate_statements(
 pub fn Cirru::format(
   xs : Array[Cirru],
   options : CirruWriterOptions
-) -> String!FormatCirruError {
-  generate_statements!(xs, options)
+) -> String raise FormatCirruError {
+  generate_statements(xs, options)
 }

@@ -1,5 +1,7 @@
 ///|
-fn build_exprs(tokens : Array[CirruLexItem]) -> Array[Cirru]!CirruParseError {
+fn build_exprs(
+  tokens : Array[CirruLexItem]
+) -> Array[Cirru] raise CirruParseError {
   let acc : Array[Cirru] = Array::new()
   let mut idx = 0
   let pull_token = fn() -> CirruLexItem? {
@@ -57,16 +59,16 @@ fn build_exprs(tokens : Array[CirruLexItem]) -> Array[Cirru]!CirruParseError {
 }
 
 ///| main function to parse Cirru code into syntax tree
-pub fn Cirru::parse(code : String) -> Array[Cirru]!CirruParseError {
-  let tokens = resolve_indentations(lex!(code))
+pub fn Cirru::parse(code : String) -> Array[Cirru] raise CirruParseError {
+  let tokens = resolve_indentations(lex(code))
   // println("tokens: \{tokens}")
-  let tree = build_exprs!(tokens)
+  let tree = build_exprs(tokens)
   // println("tree: \{tree}")
   resolve_comma(resolve_dollar(tree))
 }
 
 ///|
-type! CirruParseError String
+suberror CirruParseError String
 
 ///| display Cirru parse error
 pub fn to_string(self : CirruParseError) -> String {
@@ -76,7 +78,7 @@ pub fn to_string(self : CirruParseError) -> String {
 }
 
 ///|
-fn parse_indentation(size : Int) -> CirruLexItem!CirruParseError {
+fn parse_indentation(size : Int) -> CirruLexItem raise CirruParseError {
   if size % 2 == 0 {
     Indent(size >> 1)
   } else {
@@ -85,7 +87,7 @@ fn parse_indentation(size : Int) -> CirruLexItem!CirruParseError {
 }
 
 ///| lexer is a simpler state machine to tokenize Cirru code
-fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
+fn lex(initial_code : String) -> Array[CirruLexItem] raise CirruParseError {
   let acc = []
   let mut state : CirruLexState = Indent
   let mut buffer = ""
@@ -231,13 +233,13 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
             buffer = ""
           }
           '"' => {
-            let level = parse_indentation!(buffer.length())
+            let level = parse_indentation(buffer.length())
             acc.push(level)
             state = Str
             buffer = ""
           }
           '(' => {
-            let level = parse_indentation!(buffer.length())
+            let level = parse_indentation(buffer.length())
             acc.push(level)
             acc.push(CirruLexItem::Open)
             state = Space
@@ -245,7 +247,7 @@ fn lex(initial_code : String) -> Array[CirruLexItem]!CirruParseError {
           }
           ')' => raise CirruParseError("unexpected ) at line start")
           _ => {
-            let level = parse_indentation!(buffer.length())
+            let level = parse_indentation(buffer.length())
             acc.push(level)
             state = Token
             buffer = c.to_string()

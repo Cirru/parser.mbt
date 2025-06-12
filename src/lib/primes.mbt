@@ -51,7 +51,7 @@ pub impl @json.FromJson for Cirru with from_json(json, path) {
     Array(xs) => {
       let ys = []
       for idx, x in xs {
-        let v = @json.FromJson::from_json!(x, path.add_index(idx))
+        let v = @json.FromJson::from_json(x, path.add_index(idx))
         ys.push(v)
       }
       List(ys)

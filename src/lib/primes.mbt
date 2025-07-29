@@ -10,8 +10,8 @@ pub(all) enum Cirru {
 pub impl Hash for Cirru with hash(self) {
   let mut i = 0
   match self {
-    Cirru::Leaf(s) => i = s.length()
-    Cirru::List(xs) =>
+    Leaf(s) => i = s.length()
+    List(xs) =>
       for _ in xs {
         i = i + 1 // TODO: how to hash a list?
       }
@@ -22,8 +22,8 @@ pub impl Hash for Cirru with hash(self) {
 ///|
 pub impl Hash for Cirru with hash_combine(self, hasher) {
   match self {
-    Cirru::Leaf(s) => hasher.combine_string(s)
-    Cirru::List(xs) =>
+    Leaf(s) => hasher.combine_string(s)
+    List(xs) =>
       for x in xs {
         hasher.combine(x)
       }
@@ -33,8 +33,8 @@ pub impl Hash for Cirru with hash_combine(self, hasher) {
 ///|
 pub impl ToJson for Cirru with to_json(self : Cirru) -> Json {
   match self {
-    Cirru::Leaf(s) => Json::string(s)
-    Cirru::List(xs) => {
+    Leaf(s) => Json::string(s)
+    List(xs) => {
       let out = Array::new()
       for x in xs {
         out.push(x.to_json())
@@ -51,10 +51,10 @@ pub impl @json.FromJson for Cirru with from_json(json, path) {
     Array(xs) => {
       let ys = []
       for idx, x in xs {
-        let v = @json.FromJson::from_json!(x, path.add_index(idx))
+        let v = @json.FromJson::from_json(x, path.add_index(idx))
         ys.push(v)
       }
-      Cirru::List(ys)
+      List(ys)
     }
     // _ => @json.decode_error!((path, "Char::from_json: expected string"))
     _ =>
@@ -65,25 +65,20 @@ pub impl @json.FromJson for Cirru with from_json(json, path) {
 }
 
 ///|
-fn Cirru::default() -> Cirru {
-  Cirru::List(Array::new())
+impl Default for Cirru with default() -> Cirru {
+  List(Array::new())
 }
 
 ///|
 pub impl Show for Cirru with output(self : Cirru, logger : &Logger) -> Unit {
-  logger.write_string(self.to_string())
-}
-
-///|
-pub fn Cirru::to_string(self : Cirru) -> String {
   match self {
-    Cirru::Leaf(s) =>
+    Leaf(s) =>
       if CirruLexItem::is_normal_str(s) {
-        return s
+        logger.write_string(s)
       } else {
-        return escape_cirru_leaf(s)
+        logger.write_string(escape_cirru_leaf(s))
       }
-    Cirru::List(xs) => {
+    List(xs) => {
       let mut out = ""
       for i = 0; i < xs.length(); i = i + 1 {
         let x = xs[i]
@@ -92,16 +87,16 @@ pub fn Cirru::to_string(self : Cirru) -> String {
           out = "\{out} "
         }
       }
-      return out
+      logger.write_string(out)
     }
   }
 }
 
 ///|
-pub fn compare(self : Cirru, other : Cirru) -> Int {
+pub impl Compare for Cirru with compare(self, other) -> Int {
   match (self, other) {
-    (Cirru::Leaf(a), Cirru::Leaf(b)) => a.compare(b)
-    (Cirru::List(xs), Cirru::List(ys)) => {
+    (Leaf(a), Leaf(b)) => a.compare(b)
+    (List(xs), List(ys)) => {
       let size = @math.minimum(xs.length(), ys.length())
       for i = 0; i < size; i = i + 1 {
         let x = xs[i]
@@ -113,13 +108,13 @@ pub fn compare(self : Cirru, other : Cirru) -> Int {
       }
       return xs.length().compare(ys.length())
     }
-    (Cirru::Leaf(_), Cirru::List(_)) => -1
-    (Cirru::List(_), Cirru::Leaf(_)) => 1
+    (Leaf(_), List(_)) => -1
+    (List(_), Leaf(_)) => 1
   }
 }
 
 ///|
-pub fn length(self : Cirru) -> Int {
+pub fn Cirru::length(self : Cirru) -> Int {
   match self {
     Leaf(s) => s.length()
     List(xs) => xs.length()
@@ -127,7 +122,7 @@ pub fn length(self : Cirru) -> Int {
 }
 
 ///|
-pub fn is_empty(self : Cirru) -> Bool {
+pub fn Cirru::is_empty(self : Cirru) -> Bool {
   match self {
     Leaf(s) => s.length() == 0
     List(xs) => xs.length() == 0
@@ -135,7 +130,7 @@ pub fn is_empty(self : Cirru) -> Bool {
 }
 
 ///|
-pub fn is_nested(self : Cirru) -> Bool {
+pub fn Cirru::is_nested(self : Cirru) -> Bool {
   match self {
     Leaf(_) => false
     List(xs) => {
@@ -151,43 +146,48 @@ pub fn is_nested(self : Cirru) -> Bool {
 }
 
 ///|
-pub fn is_comment(self : Cirru) -> Bool {
+pub fn Cirru::is_comment(self : Cirru) -> Bool {
   match self {
-    Leaf(s) => s[0] == ';'
+    Leaf(s) => s.char_at(0) == ';'
     _ => false
   }
 }
 
-///|
+///| lexer is a simpler state machine to tokenize Cirru code
 priv enum CirruLexState {
+  /// Space, waiting for next token
   Space
+  /// Token, a normal token
   Token
+  /// Escape, waiting for a character or some special sequence
   Escape
+  /// Working on indentations
   Indent
+  /// Working on a string
   Str
 } derive(Show)
 
-///|
+///| lexer is a simpler state machine to tokenize Cirru code
 priv enum CirruLexItem {
+  /// `(`, start of a list
   Open
+  /// `)`, end of a list
   Close
+  /// Indentation level, used for nested lists
   Indent(Int)
+  /// A string, which can be a normal string or a special one
   Str(String)
 }
 
 ///|
 impl Show for CirruLexItem with output(self : CirruLexItem, logger : &Logger) -> Unit {
-  logger.write_string(self.to_string())
-}
-
-///|
-fn CirruLexItem::to_string(self : CirruLexItem) -> String {
-  match self {
-    CirruLexItem::Open => "("
-    CirruLexItem::Close => ")"
-    CirruLexItem::Indent(size) => "indent(\{size})"
-    CirruLexItem::Str(s) => s
+  let content = match self {
+    Open => "("
+    Close => ")"
+    Indent(size) => "indent(\{size})"
+    Str(s) => s
   }
+  logger.write_string(content)
 }
 
 ///|
@@ -198,29 +198,29 @@ fn CirruLexItem::is_normal_str(tok : String) -> Bool {
   }
   let mut i = 0
   while i < size {
-    let c = tok[i]
-    if (c >= 'A' && c <= 'Z') ||
-      (c >= 'a' && c <= 'z') ||
-      c == '-' ||
-      c == '?' ||
-      c == '!' ||
-      c == '+' ||
-      c == '*' ||
-      c == '$' ||
-      c == '@' ||
-      c == '#' ||
-      c == '%' ||
-      c == '&' ||
-      c == '_' ||
-      c == '=' ||
-      c == '|' ||
-      c == ':' ||
-      c == '.' ||
-      c == '<' ||
-      c == '>' {
-      i = i + 1
-    } else {
-      return false
+    let c = tok.char_at(i)
+    match c {
+      'A'..='Z' => ()
+      'a'..='z' => ()
+      '0'..='9' => ()
+      '-' => ()
+      '?' => ()
+      '!' => ()
+      '+' => ()
+      '*' => ()
+      '$' => ()
+      '@' => ()
+      '#' => ()
+      '%' => ()
+      '&' => ()
+      '_' => ()
+      '=' => ()
+      '|' => ()
+      ':' => ()
+      '.' => ()
+      '<' => ()
+      '>' => ()
+      _ => return false
     }
     i = i + 1
   }
@@ -236,23 +236,18 @@ fn escape_cirru_leaf(s : String) -> String {
     let size = s.length()
     let mut i = 0
     while i < size {
-      let c = s[i]
-      if c == '\n' {
-        out = out + "\\n"
-      } else if c == '\t' {
-        out = out + "\\t"
-      } else if c == '"' {
-        out = out + "\\\""
-      } else if c == '\\' {
-        out = out + "\\\\"
-      } else if c == '\'' {
-        out = out + "\\'"
-      } else {
-        out = "\{out}\{c}"
+      let c = s.char_at(i)
+      match c {
+        '\n' => out += "\\n"
+        '\t' => out += "\\t"
+        '"' => out += "\\\""
+        '\\' => out += "\\\\"
+        '\'' => out += "\\'"
+        _ => out += "\{c}"
       }
       i = i + 1
     }
-    out = out + "\""
+    out += "\""
     return out
   }
 }

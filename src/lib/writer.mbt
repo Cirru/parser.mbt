@@ -172,7 +172,7 @@ fn generate_tree(
   insist_head : Bool,
   options : CirruWriterOptions,
   base_level : Int,
-  in_tail : Bool
+  in_tail : Bool,
 ) -> String raise FormatCirruError {
   let mut prev_kind : WriterNode = Nil
   let mut level = base_level
@@ -299,7 +299,7 @@ fn generate_tree(
 ///|
 fn generate_statements(
   ys : Array[Cirru],
-  options : CirruWriterOptions
+  options : CirruWriterOptions,
 ) -> String raise FormatCirruError {
   let mut zs = ""
   for y in ys {
@@ -318,7 +318,7 @@ fn generate_statements(
 ///| format Cirru code, use options to control `use_inline` option
 pub fn Cirru::format(
   xs : Array[Cirru],
-  options : CirruWriterOptions
+  options : CirruWriterOptions,
 ) -> String raise FormatCirruError {
   generate_statements(xs, options)
 }

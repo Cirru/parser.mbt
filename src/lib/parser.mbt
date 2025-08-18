@@ -1,6 +1,6 @@
 ///|
 fn build_exprs(
-  tokens : Array[CirruLexItem]
+  tokens : Array[CirruLexItem],
 ) -> Array[Cirru] raise CirruParseError {
   let acc : Array[Cirru] = Array::new()
   let mut idx = 0

@@ -7,5 +7,6 @@
   "license": "Apache-2.0",
   "keywords": ["Cirru"],
   "source": "src",
-  "description": "parser for Cirru Syntax"
+  "description": "parser for Cirru Syntax",
+  "preferred-target": "js"
 }

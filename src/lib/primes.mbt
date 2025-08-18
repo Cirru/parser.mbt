@@ -65,11 +65,6 @@ pub impl @json.FromJson for Cirru with from_json(json, path) {
 }
 
 ///|
-impl Default for Cirru with default() -> Cirru {
-  List(Array::new())
-}
-
-///|
 pub impl Show for Cirru with output(self : Cirru, logger : &Logger) -> Unit {
   match self {
     Leaf(s) =>
@@ -97,7 +92,7 @@ pub impl Compare for Cirru with compare(self, other) -> Int {
   match (self, other) {
     (Leaf(a), Leaf(b)) => a.compare(b)
     (List(xs), List(ys)) => {
-      let size = @math.minimum(xs.length(), ys.length())
+      let size = @cmp.minimum(xs.length(), ys.length())
       for i = 0; i < size; i = i + 1 {
         let x = xs[i]
         let y = ys[i]
@@ -148,7 +143,7 @@ pub fn Cirru::is_nested(self : Cirru) -> Bool {
 ///|
 pub fn Cirru::is_comment(self : Cirru) -> Bool {
   match self {
-    Leaf(s) => s.char_at(0) == ';'
+    Leaf(s) => s.get_char(0).unwrap() == ';'
     _ => false
   }
 }
@@ -165,7 +160,7 @@ priv enum CirruLexState {
   Indent
   /// Working on a string
   Str
-} derive(Show)
+}
 
 ///| lexer is a simpler state machine to tokenize Cirru code
 priv enum CirruLexItem {
@@ -198,7 +193,7 @@ fn CirruLexItem::is_normal_str(tok : String) -> Bool {
   }
   let mut i = 0
   while i < size {
-    let c = tok.char_at(i)
+    let c = tok.get_char(i).unwrap()
     match c {
       'A'..='Z' => ()
       'a'..='z' => ()
@@ -236,7 +231,7 @@ fn escape_cirru_leaf(s : String) -> String {
     let size = s.length()
     let mut i = 0
     while i < size {
-      let c = s.char_at(i)
+      let c = s.get_char(i).unwrap()
       match c {
         '\n' => out += "\\n"
         '\t' => out += "\\t"

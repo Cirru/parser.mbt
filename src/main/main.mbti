@@ -1,4 +1,5 @@
-package tiye/cirru-parser/main
+// Generated using `moon info`, DON'T EDIT IT
+package "tiye/cirru-parser/main"
 
 // Values
 fn fsReadSync(String) -> String
@@ -6,6 +7,8 @@ fn fsReadSync(String) -> String
 fn main_parser() -> Unit
 
 fn main_writer() -> Unit
+
+// Errors
 
 // Types and methods
 

@@ -3,3 +3,5 @@ target/
 
 trace.json
 .DS_Store
+
+*.mbti

@@ -1,6 +1,6 @@
 ///|
 fn build_exprs(
-  tokens : Array[CirruLexItem]
+  tokens : Array[CirruLexItem],
 ) -> Array[Cirru] raise CirruParseError {
   let acc : Array[Cirru] = Array::new()
   let mut idx = 0
@@ -58,7 +58,8 @@ fn build_exprs(
   }
 }
 
-///| main function to parse Cirru code into syntax tree
+///|
+/// main function to parse Cirru code into syntax tree
 pub fn Cirru::parse(code : String) -> Array[Cirru] raise CirruParseError {
   let tokens = resolve_indentations(lex(code))
   // println("tokens: \{tokens}")
@@ -70,7 +71,8 @@ pub fn Cirru::parse(code : String) -> Array[Cirru] raise CirruParseError {
 ///|
 suberror CirruParseError String
 
-///| display Cirru parse error
+///|
+/// display Cirru parse error
 pub fn to_string(self : CirruParseError) -> String {
   match self {
     CirruParseError(s) => s
@@ -86,7 +88,8 @@ fn parse_indentation(size : Int) -> CirruLexItem raise CirruParseError {
   }
 }
 
-///| lexer is a simpler state machine to tokenize Cirru code
+///|
+/// lexer is a simpler state machine to tokenize Cirru code
 fn lex(initial_code : String) -> Array[CirruLexItem] raise CirruParseError {
   let acc = []
   let mut state : CirruLexState = Indent
@@ -268,7 +271,8 @@ fn lex(initial_code : String) -> Array[CirruLexItem] raise CirruParseError {
   }
 }
 
-///| internal function for figuring out indentations after lexing
+///|
+/// internal function for figuring out indentations after lexing
 fn resolve_indentations(tokens : Array[CirruLexItem]) -> Array[CirruLexItem] {
   let size = tokens.length()
   let mut acc : Array[CirruLexItem] = Array::new()

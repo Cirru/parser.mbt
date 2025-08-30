@@ -1,4 +1,5 @@
-///| Cirru uses nested Vecters and Strings as data structure
+///|
+/// Cirru uses nested Vecters and Strings as data structure
 pub(all) enum Cirru {
   /// Leaf node, with a string
   Leaf(String)
@@ -153,7 +154,8 @@ pub fn Cirru::is_comment(self : Cirru) -> Bool {
   }
 }
 
-///| lexer is a simpler state machine to tokenize Cirru code
+///|
+/// lexer is a simpler state machine to tokenize Cirru code
 priv enum CirruLexState {
   /// Space, waiting for next token
   Space
@@ -167,7 +169,8 @@ priv enum CirruLexState {
   Str
 } derive(Show)
 
-///| lexer is a simpler state machine to tokenize Cirru code
+///|
+/// lexer is a simpler state machine to tokenize Cirru code
 priv enum CirruLexItem {
   /// `(`, start of a list
   Open

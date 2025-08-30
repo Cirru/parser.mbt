@@ -12,13 +12,16 @@ priv enum WriterNode {
   Expr
 } derive(Eq)
 
-///| `)`, end of a list
+///|
+/// `)`, end of a list
 let char_close : Char = ')'
 
-///| `(`, start of a list)
+///|
+/// `(`, start of a list)
 let char_open : Char = '('
 
-///| Allowed characters in a leaf node, which can be used to generate a string safely
+///|
+/// Allowed characters in a leaf node, which can be used to generate a string safely
 let allowed_chars : String = "$-:<>[]{}*=+.,\\/!?~_@#&%^|;'"
 
 ///|
@@ -37,7 +40,8 @@ fn is_a_letter(c : Char) -> Bool {
   }
 }
 
-///| Check if the expression is simple, which means it has no nested lists
+///|
+/// Check if the expression is simple, which means it has no nested lists
 fn is_simple_expr(ys : Array[Cirru]) -> Bool {
   for y in ys {
     match y {
@@ -48,7 +52,8 @@ fn is_simple_expr(ys : Array[Cirru]) -> Bool {
   true
 }
 
-///| Check if the expression is boxed, which means it has no nested lists
+///|
+/// Check if the expression is boxed, which means it has no nested lists
 fn is_boxed(ys : Array[Cirru]) -> Bool {
   for y in ys {
     match y {
@@ -59,7 +64,8 @@ fn is_boxed(ys : Array[Cirru]) -> Bool {
   true
 }
 
-///| Check if the character is a simple character, which means it is a letter or a digit
+///|
+/// Check if the character is a simple character, which means it is a letter or a digit
 fn is_simple_char(x : Char) -> Bool {
   is_a_letter(x) || is_a_digit(x)
 }
@@ -72,7 +78,8 @@ fn is_char_allowed(x : Char) -> Bool {
   allowed_chars.contains_char(x)
 }
 
-///| Generate a leaf node, which is a string that may contain special characters
+///|
+/// Generate a leaf node, which is a string that may contain special characters
 fn generate_leaf(s : String) -> String {
   let mut all_allowed = true
   for x in s {
@@ -124,7 +131,8 @@ fn generate_inline_expr(xs : Array[Cirru]) -> String {
   result
 }
 
-///| by 2 spaces
+///|
+/// by 2 spaces
 fn push_spaces(buf : String, n : Int) -> String {
   let mut ret = buf
   for i = 0; i < n; i = i + 1 {
@@ -141,12 +149,14 @@ fn render_newline(n : Int) -> String {
   ret
 }
 
-///| options for writer, `use_inline` for more compact format.
+///|
+/// options for writer, `use_inline` for more compact format.
 pub(all) struct CirruWriterOptions {
   use_inline : Bool
 }
 
-///| kind for writer nodes
+///|
+/// kind for writer nodes
 fn Cirru::get_node_kind(self : Cirru) -> WriterNode {
   match self {
     Leaf(_) => Leaf
@@ -172,7 +182,7 @@ fn generate_tree(
   insist_head : Bool,
   options : CirruWriterOptions,
   base_level : Int,
-  in_tail : Bool
+  in_tail : Bool,
 ) -> String raise FormatCirruError {
   let mut prev_kind : WriterNode = Nil
   let mut level = base_level
@@ -299,7 +309,7 @@ fn generate_tree(
 ///|
 fn generate_statements(
   ys : Array[Cirru],
-  options : CirruWriterOptions
+  options : CirruWriterOptions,
 ) -> String raise FormatCirruError {
   let mut zs = ""
   for y in ys {
@@ -315,10 +325,11 @@ fn generate_statements(
   zs
 }
 
-///| format Cirru code, use options to control `use_inline` option
+///|
+/// format Cirru code, use options to control `use_inline` option
 pub fn Cirru::format(
   xs : Array[Cirru],
-  options : CirruWriterOptions
+  options : CirruWriterOptions,
 ) -> String raise FormatCirruError {
   generate_statements(xs, options)
 }

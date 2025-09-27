@@ -1,11 +1,12 @@
 {
   "name": "tiye/cirru-parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "deps": {},
   "readme": "README.md",
   "repository": "https://github.com/Cirru/parser.mbt",
   "license": "Apache-2.0",
   "keywords": ["Cirru"],
   "source": "src",
+  "preferred-target": "js",
   "description": "parser for Cirru Syntax"
 }

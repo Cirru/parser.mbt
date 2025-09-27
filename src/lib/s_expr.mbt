@@ -51,7 +51,7 @@ fn format_lispy_expr(self : Cirru, indent : Int) -> String raise FormatError {
       if token.is_empty() {
         raise FormatError("empty string is invalid")
       } else {
-        let s0 = token.char_at(0)
+        let s0 = token[0]
         if s0 == '|' || s0 == '"' {
           "\"" + escape_string(token.substring(start=1)) + "\""
         } else if token.contains(" ") ||

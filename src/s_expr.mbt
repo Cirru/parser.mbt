@@ -14,7 +14,7 @@ pub fn format_to_lisp(xs : Array[Cirru]) -> String raise FormatError {
 ///|
 /// format single expression to Lisp-like code
 fn format_lispy_expr(self : Cirru, indent : Int) -> String raise FormatError {
-  let emptySpace = " "
+  let empty_space = " "
   match self {
     List(xs) =>
       if xs.length() > 0 && xs[0].is_comment() {
@@ -26,17 +26,17 @@ fn format_lispy_expr(self : Cirru, indent : Int) -> String raise FormatError {
         }
 
         // chunk = format!("{}{}", chunk.trim_end(), gen_newline(indent));
-        chunk = "\{chunk.trim_end(emptySpace)}\{gen_newline(indent)}"
+        chunk = "\{chunk.trim_end(char_set=empty_space)}\{gen_newline(indent)}"
         chunk
       } else {
         let mut chunk = "("
         for idx, x in xs {
           if x.is_nested() {
-            chunk = "\{chunk.trim_end(emptySpace)}\{gen_newline(indent + 1)}"
+            chunk = "\{chunk.trim_end(char_set=empty_space)}\{gen_newline(indent + 1)}"
           }
           let next = x.format_lispy_expr(indent + 1)
           if next.has_prefix("\n") {
-            chunk = "\{chunk.trim_end(emptySpace)}\{next}"
+            chunk = "\{chunk.trim_end(char_set=empty_space)}\{next}"
           } else {
             chunk = "\{chunk}\{next}"
           }
@@ -53,7 +53,8 @@ fn format_lispy_expr(self : Cirru, indent : Int) -> String raise FormatError {
       } else {
         let s0 = token[0]
         if s0 == '|' || s0 == '"' {
-          "\"" + escape_string(token.substring(start=1)) + "\""
+          let sliced = (try? token[1:]).unwrap().to_string()
+          "\"" + escape_string(sliced) + "\""
         } else if token.contains(" ") ||
           token.contains("\n") ||
           token.contains("\"") {

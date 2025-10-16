@@ -1,5 +1,5 @@
 ///|
-typealias @lib.Cirru
+using @lib {type Cirru}
 
 ///|
 test "parser" {
@@ -20,9 +20,7 @@ test "existed demos" {
     let defined = (try? @json.parse(json_file)).unwrap()
     let defined_str = defined.stringify()
     assert_eq(tree, defined_str)
-    let formatted = Cirru::format(@json.from_json(defined), {
-      use_inline: false,
-    })
+    let formatted = Cirru::format(@json.from_json(defined), use_inline=false)
     let ret = (try? Cirru::parse(formatted)).unwrap().to_json().stringify()
     assert_eq(ret, defined_str)
   }

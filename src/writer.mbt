@@ -150,12 +150,6 @@ fn render_newline(n : Int) -> String {
 }
 
 ///|
-/// options for writer, `use_inline` for more compact format.
-pub(all) struct CirruWriterOptions {
-  use_inline : Bool
-}
-
-///|
 /// kind for writer nodes
 fn Cirru::get_node_kind(self : Cirru) -> WriterNode {
   match self {
@@ -180,7 +174,7 @@ pub(all) suberror FormatCirruError String derive(Show)
 fn generate_tree(
   xs : Array[Cirru],
   insist_head : Bool,
-  options : CirruWriterOptions,
+  use_inline? : Bool = false,
   base_level : Int,
   in_tail : Bool,
 ) -> String raise FormatCirruError {
@@ -208,7 +202,7 @@ fn generate_tree(
             "$"
           } else {
             let mut ret = "$ "
-            ret = ret + generate_tree(ys, false, options, level, at_tail)
+            ret = ret + generate_tree(ys, false, use_inline~, level, at_tail)
             ret
           }
         } else if idx == 0 && insist_head {
@@ -224,19 +218,29 @@ fn generate_tree(
         } else if kind == SimpleExpr {
           if prev_kind == Leaf {
             generate_inline_expr(ys)
-          } else if options.use_inline && prev_kind == SimpleExpr {
+          } else if use_inline && prev_kind == SimpleExpr {
             let mut ret = " "
             ret = ret + generate_inline_expr(ys)
             ret
           } else {
             let mut ret = render_newline(next_level)
             ret = ret +
-              generate_tree(ys, child_insist_head, options, next_level, false)
+              generate_tree(
+                ys,
+                child_insist_head,
+                use_inline~,
+                next_level,
+                false,
+              )
             ret
           }
         } else if kind == Expr {
           let content = generate_tree(
-            ys, child_insist_head, options, next_level, false,
+            ys,
+            child_insist_head,
+            use_inline~,
+            next_level,
+            false,
           )
           if content.has_prefix("\n") {
             content
@@ -247,7 +251,11 @@ fn generate_tree(
           }
         } else if kind == BoxedExpr {
           let content = generate_tree(
-            ys, child_insist_head, options, next_level, false,
+            ys,
+            child_insist_head,
+            use_inline~,
+            next_level,
+            false,
           )
           if prev_kind == Nil || prev_kind == Leaf || prev_kind == SimpleExpr {
             content
@@ -282,7 +290,7 @@ fn generate_tree(
     if kind == SimpleExpr {
       if idx == 0 && insist_head {
         prev_kind = SimpleExpr
-      } else if options.use_inline {
+      } else if use_inline {
         if prev_kind == Leaf || prev_kind == SimpleExpr {
           prev_kind = SimpleExpr
         } else {
@@ -309,7 +317,7 @@ fn generate_tree(
 ///|
 fn generate_statements(
   ys : Array[Cirru],
-  options : CirruWriterOptions,
+  use_inline? : Bool = false,
 ) -> String raise FormatCirruError {
   let mut zs = ""
   for y in ys {
@@ -317,7 +325,7 @@ fn generate_statements(
       Leaf(_) => raise FormatCirruError("expected an exprs at top level")
       List(cs) => {
         zs += "\n"
-        zs += generate_tree(cs, true, options, 0, false)
+        zs += generate_tree(cs, true, use_inline~, 0, false)
         zs += "\n"
       }
     }
@@ -329,7 +337,7 @@ fn generate_statements(
 /// format Cirru code, use options to control `use_inline` option
 pub fn Cirru::format(
   xs : Array[Cirru],
-  options : CirruWriterOptions,
+  use_inline? : Bool = false,
 ) -> String raise FormatCirruError {
-  generate_statements(xs, options)
+  generate_statements(xs, use_inline~)
 }

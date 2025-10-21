@@ -1,5 +1,5 @@
 ///|
-typealias @lib.Cirru
+using @lib {type Cirru}
 
 ///|
 pub fn main_parser() -> Unit {
@@ -38,7 +38,7 @@ pub fn main_writer() -> Unit {
   for item in tree {
     println(item.to_json().stringify())
   }
-  let ret = (try? Cirru::format(tree, { use_inline: false })).unwrap()
+  let ret = (try? Cirru::format(tree, use_inline=false)).unwrap()
   println("Generated:")
   println(ret)
   println("Expected:")

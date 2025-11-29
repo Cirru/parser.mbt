@@ -17,9 +17,10 @@ pub fn main_parser() -> Unit {
   match tree {
     Ok(tree) => {
       println(tree.to_json().stringify())
-      match (try? @json.parse(json_file)) {
-        Ok(json) => println(json.stringify())
-        Err(err) => println(err.to_string())
+      try @json.parse(json_file) catch {
+        err => println(err.to_string())
+      } noraise {
+        json => println(json.stringify())
       }
       // println(tree)
     }

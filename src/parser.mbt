@@ -73,7 +73,7 @@ suberror CirruParseError String
 
 ///|
 /// display Cirru parse error
-pub fn to_string(self : CirruParseError) -> String {
+pub fn CirruParseError::to_string(self : Self) -> String {
   match self {
     CirruParseError(s) => s
   }

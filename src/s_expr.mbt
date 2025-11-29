@@ -13,7 +13,10 @@ pub fn format_to_lisp(xs : Array[Cirru]) -> String raise FormatError {
 
 ///|
 /// format single expression to Lisp-like code
-fn format_lispy_expr(self : Cirru, indent : Int) -> String raise FormatError {
+fn Cirru::format_lispy_expr(
+  self : Self,
+  indent : Int,
+) -> String raise FormatError {
   let empty_space = " "
   match self {
     List(xs) =>

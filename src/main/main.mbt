@@ -33,13 +33,13 @@ pub fn main_writer() -> Unit {
   let demo = "unfolding"
   let demo_file = fsReadSync("./test/cirru/\{demo}.cirru")
   let json_file = fsReadSync("./test/data/\{demo}.json")
-  let defined = (try? @json.parse(json_file)).unwrap()
-  let tree : Array[Cirru] = (try? @json.from_json(defined)).unwrap()
+  let defined = try! @json.parse(json_file)
+  let tree : Array[Cirru] = try! @json.from_json(defined)
   println("TREE:")
   for item in tree {
     println(item.to_json().stringify())
   }
-  let ret = (try? Cirru::format(tree, use_inline=false)).unwrap()
+  let ret = try! Cirru::format(tree, use_inline=false)
   println("Generated:")
   println(ret)
   println("Expected:")

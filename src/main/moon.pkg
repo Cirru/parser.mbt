@@ -1,0 +1,11 @@
+import {
+  "moonbitlang/core/json" @json,
+  "tiye/cirru-parser" @lib,
+}
+
+import {
+} for "test"
+
+options(
+  "is-main": true,
+)

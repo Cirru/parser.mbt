@@ -5,3 +5,7 @@ trace.json
 .DS_Store
 
 *.mbti
+
+_build
+
+.github/skills/

@@ -1,9 +1,0 @@
-{
-  "import": [],
-  "test-import": [
-    {
-      "path": "tiye/cirru-parser",
-      "alias": "lib"
-    }
-  ]
-}

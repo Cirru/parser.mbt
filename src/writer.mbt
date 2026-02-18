@@ -168,7 +168,9 @@ fn Cirru::get_node_kind(self : Cirru) -> WriterNode {
 }
 
 ///|
-pub(all) suberror FormatCirruError String derive(Show)
+pub(all) suberror FormatCirruError {
+  FormatCirruError(String)
+} derive(Show)
 
 ///|
 fn generate_tree(

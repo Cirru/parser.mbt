@@ -16,12 +16,12 @@ test "existed demos" {
   for demo in demos {
     let demo_file = fsReadSync("./test/cirru/\{demo}.cirru")
     let json_file = fsReadSync("./test/data/\{demo}.json")
-    let tree = (try? Cirru::parse(demo_file)).unwrap().to_json().stringify()
-    let defined = (try? @json.parse(json_file)).unwrap()
+    let tree = (try! Cirru::parse(demo_file)).to_json().stringify()
+    let defined = try! @json.parse(json_file)
     let defined_str = defined.stringify()
     assert_eq(tree, defined_str)
     let formatted = Cirru::format(@json.from_json(defined), use_inline=false)
-    let ret = (try? Cirru::parse(formatted)).unwrap().to_json().stringify()
+    let ret = (try! Cirru::parse(formatted)).to_json().stringify()
     assert_eq(ret, defined_str)
   }
 }

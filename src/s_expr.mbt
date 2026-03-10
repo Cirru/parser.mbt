@@ -1,5 +1,7 @@
 ///|
-suberror FormatError String
+suberror FormatError {
+  FormatError(String)
+}
 
 ///|
 /// format program to Cirru to Lisp-like code
@@ -56,7 +58,7 @@ fn Cirru::format_lispy_expr(
       } else {
         let s0 = token[0]
         if s0 == '|' || s0 == '"' {
-          let sliced = (try? token[1:]).unwrap().to_string()
+          let sliced = (try! token[1:]).to_string()
           "\"" + escape_string(sliced) + "\""
         } else if token.contains(" ") ||
           token.contains("\n") ||

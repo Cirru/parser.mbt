@@ -69,7 +69,9 @@ pub fn Cirru::parse(code : String) -> Array[Cirru] raise CirruParseError {
 }
 
 ///|
-suberror CirruParseError String
+suberror CirruParseError {
+  CirruParseError(String)
+}
 
 ///|
 /// display Cirru parse error

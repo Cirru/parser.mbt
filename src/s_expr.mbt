@@ -46,7 +46,7 @@ fn Cirru::format_lispy_expr(
             chunk = "\{chunk}\{next}"
           }
           // TODO dirty way, but intuitive for now
-          if idx < xs.length() - 1 && not(ends_with_newline(chunk)) {
+          if idx < xs.length() - 1 && !ends_with_newline(chunk) {
             chunk = "\{chunk} "
           }
         }
@@ -58,7 +58,7 @@ fn Cirru::format_lispy_expr(
       } else {
         let s0 = token[0]
         if s0 == '|' || s0 == '"' {
-          let sliced = (try! token[1:]).to_string()
+          let sliced = token[1:].to_owned()
           "\"" + escape_string(sliced) + "\""
         } else if token.contains(" ") ||
           token.contains("\n") ||

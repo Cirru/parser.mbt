@@ -150,6 +150,12 @@ pub fn Cirru::is_comment(self : Cirru) -> Bool {
 }
 
 ///|
+/// format this expression into a single line of Cirru code
+pub fn Cirru::format_one_liner(self : Cirru) -> String raise FormatCirruError {
+  Cirru::format_expr_one_liner(self)
+}
+
+///|
 /// lexer is a simpler state machine to tokenize Cirru code
 priv enum CirruLexState {
   /// Space, waiting for next token

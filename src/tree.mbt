@@ -12,18 +12,18 @@ fn comma_helper(initial_after : Array[Cirru]) -> Array[Cirru] {
   let before : Array[Cirru] = Array::new(capacity=initial_after.length())
   let after : Array[Cirru] = initial_after
   let mut pointer = 0
-  for {
+  for ;; {
     if pointer >= after.length() {
       return before
     }
     match after[pointer] {
       List(xs) =>
-        if not(xs.is_empty()) {
+        if !xs.is_empty() {
           match xs[0] {
             List(_) => before.push(List(resolve_comma(xs)))
             Leaf(s) =>
               if s == "," {
-                before.push_iter(resolve_comma(xs[1:].to_array()).iter())
+                before.push_iter(resolve_comma(xs[1:].to_owned()).iter())
               } else {
                 before.push(List(resolve_comma(xs)))
               }
@@ -51,7 +51,7 @@ fn dollar_helper(initial_after : Array[Cirru]) -> Array[Cirru] {
   let before : Array[Cirru] = Array::new(capacity=initial_after.length())
   let after : Array[Cirru] = initial_after
   let mut pointer = 0
-  for {
+  for ;; {
     if pointer >= after.length() {
       return before
     } else {

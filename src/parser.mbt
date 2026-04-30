@@ -13,7 +13,7 @@ fn build_exprs(
     idx += 1
     Some(tokens[pos])
   }
-  for {
+  for ;; {
     let chunk = pull_token()
     match chunk {
       None => return acc
@@ -23,7 +23,7 @@ fn build_exprs(
             let mut pointer : Array[Cirru] = Array::new(capacity=8)
             // guess a nested level of 16
             let pointer_stack : Array[Array[Cirru]] = Array::new(capacity=16)
-            for {
+            for ;; {
               let cursor = pull_token()
               match cursor {
                 None => raise CirruParseError("unexpected end of file")
@@ -66,6 +66,18 @@ pub fn Cirru::parse(code : String) -> Array[Cirru] raise CirruParseError {
   let tree = build_exprs(tokens)
   // println("tree: \{tree}")
   resolve_comma(resolve_dollar(tree))
+}
+
+///|
+/// parse a one-line Cirru expression into exactly one expression
+pub fn Cirru::parse_expr_one_liner(
+  code : String,
+) -> Cirru raise CirruParseError {
+  let xs = Cirru::parse(code)
+  if xs.length() != 1 {
+    raise CirruParseError("expected 1 expression, got \{xs.length()}")
+  }
+  xs[0]
 }
 
 ///|
@@ -280,7 +292,7 @@ fn resolve_indentations(tokens : Array[CirruLexItem]) -> Array[CirruLexItem] {
   let mut acc : Array[CirruLexItem] = Array::new()
   let mut level = 0
   let mut pointer = 0
-  for {
+  for ;; {
     if pointer >= size {
       if acc.is_empty() {
         return Array::new()

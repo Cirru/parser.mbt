@@ -83,7 +83,7 @@ fn is_char_allowed(x : Char) -> Bool {
 fn generate_leaf(s : String) -> String {
   let mut all_allowed = true
   for x in s {
-    if not(is_char_allowed(x)) {
+    if !is_char_allowed(x) {
       all_allowed = false
       break
     }
@@ -132,6 +132,33 @@ fn generate_inline_expr(xs : Array[Cirru]) -> String {
 }
 
 ///|
+fn generate_statement_one_liner(xs : Array[Cirru]) -> String {
+  let mut ret = ""
+  let size = xs.length()
+  for idx, cursor in xs {
+    if idx > 0 {
+      ret += " "
+    }
+    let at_tail = idx > 0 && idx == size - 1
+    match cursor {
+      Leaf(s) => ret += generate_leaf(s)
+      List(ys) =>
+        if at_tail {
+          if ys.is_empty() {
+            ret += "$"
+          } else {
+            ret += "$ "
+            ret += generate_statement_one_liner(ys)
+          }
+        } else {
+          ret += generate_inline_expr(ys)
+        }
+    }
+  }
+  ret
+}
+
+///|
 /// by 2 spaces
 fn push_spaces(buf : String, n : Int) -> String {
   let mut ret = buf
@@ -170,7 +197,7 @@ fn Cirru::get_node_kind(self : Cirru) -> WriterNode {
 ///|
 pub(all) suberror FormatCirruError {
   FormatCirruError(String)
-} derive(Show)
+} derive(Debug)
 
 ///|
 fn generate_tree(
@@ -188,7 +215,7 @@ fn generate_tree(
     let next_level = level + 1
     let child_insist_head = prev_kind == BoxedExpr || prev_kind == Expr
     let at_tail = idx != 0 &&
-      not(in_tail) &&
+      !in_tail &&
       prev_kind == Leaf &&
       idx == xs.length() - 1
 
@@ -342,4 +369,16 @@ pub fn Cirru::format(
   use_inline? : Bool = false,
 ) -> String raise FormatCirruError {
   generate_statements(xs, use_inline~)
+}
+
+///|
+/// format a single Cirru expression as a single line
+pub fn Cirru::format_expr_one_liner(
+  expr : Cirru,
+) -> String raise FormatCirruError {
+  match expr {
+    Leaf(_) =>
+      raise FormatCirruError("format_expr_one_liner expects an expr (list)")
+    List(xs) => generate_statement_one_liner(xs)
+  }
 }
